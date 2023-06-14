@@ -17,18 +17,13 @@
  *
  */
 
+#ifdef x86_64
+
 #include <arch.h>
 
-#include <dd/serial/serial.h>
-
-#include <debug/log.h>
-
-void _start(void)
+void arch_init()
 {
-	arch_init();
-	klog("Hello World!");
-	// serial_write("Hello World!");
-
-	for (;;) {
-	}
+	gdt_init();
 }
+
+#endif

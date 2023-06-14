@@ -22,6 +22,8 @@
 
 #ifdef x86_64
 #include <x86/utils.h>
+
+#include <x86_64/cpu/gdt.h>
 #else
 #error Unsupported architecture!
 #endif

@@ -17,18 +17,28 @@
  *
  */
 
-#include <arch.h>
+#ifndef _GDT_H_
+#define _GDT_H_
 
-#include <dd/serial/serial.h>
+typedef struct {
+	uint16_t limit_lo;
+	uint16_t base_lo;
+	uint8_t base_mid;
+	uint8_t access;
+	uint8_t limit_hi : 4;
+	uint8_t flags : 4;
+	uint8_t base_hi;
+} gdt_entry_t;
 
-#include <debug/log.h>
+typedef struct {
+	uint16_t size;
+	uint32_t offset;
+} gdtr_t;
 
-void _start(void)
-{
-	arch_init();
-	klog("Hello World!");
-	// serial_write("Hello World!");
+void gdt_init();
+void gdt_set_desc(gdt_entry_t *gdt, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
 
-	for (;;) {
-	}
-}
+extern void gdt_load(gdtr_t *gdtr);
+extern void gdt_reloadseg(void);
+
+#endif // _GDT_H_
