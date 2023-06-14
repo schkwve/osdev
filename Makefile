@@ -29,7 +29,7 @@ LDFLAGS := -nostdlib \
 			-no-pie \
 			-melf_x86_64 \
 			-zmax-page-size=0x1000 \
-			-Tsrc/arch/$(ARCH)/linker.ld
+			-Tkrnl/arch/$(ARCH)/linker.ld
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
@@ -39,8 +39,8 @@ endif
 KERNEL=krnl.sys
 ISO=osdev.iso
 
-C_FILES=$(shell find src -name "*.c" -type f)
-AS_FILES=$(shell find src -name "*.asm" -type f)
+C_FILES=$(shell find krnl -name "*.c" -type f)
+AS_FILES=$(shell find krnl -name "*.asm" -type f)
 OBJ=$(C_FILES:.c=.o) $(AS_FILES:.asm=.o)
 
 .PHONY: all
@@ -55,7 +55,7 @@ run: $(ISO) # Run OSDev
 
 .PHONY: format
 format: # Format the code as described in .clang-format
-	find src -type f -name "*.c" -o -name "*.h" | xargs clang-format -i
+	find krnl -type f -name "*.c" -o -name "*.h" | xargs clang-format -i
 
 .PHONY: help
 help: # Print help
