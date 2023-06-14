@@ -17,15 +17,9 @@
  *
  */
 
-#include <dd/serial/serial.h>
+#ifndef __LOG_H_
+#define __LOG_H_
 
-#include <debug/log.h>
+void klog(char *str);
 
-void _start(void)
-{
-	klog("Hello World!");
-	//serial_write("Hello World!");
-
-	for (;;) {
-	}
-}
+#endif // __LOG_H_

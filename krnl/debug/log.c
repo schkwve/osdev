@@ -19,13 +19,10 @@
 
 #include <dd/serial/serial.h>
 
-#include <debug/log.h>
-
-void _start(void)
+// TODO: To be changed to a "printf"-like function
+void klog(char *str)
 {
-	klog("Hello World!");
-	//serial_write("Hello World!");
-
-	for (;;) {
+	while (*str != 0) {
+		serial_write(*str++);
 	}
 }

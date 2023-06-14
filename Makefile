@@ -1,3 +1,22 @@
+#
+# OSDev
+# Copyright (C) 2023 Jozef Nagy
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+
 ARCH := x86_64
 
 AS := nasm
@@ -6,25 +25,27 @@ LD := x86_64-elf-ld
 
 ASFLAGS := -felf64
 
-CFLAGS := -std=c99             \
-			-ffreestanding       \
+CFLAGS :=	-std=c99 \
+			-ffreestanding \
 			-fno-stack-protector \
-			-fno-stack-check     \
-			-fno-lto             \
-			-fno-pie             \
-			-fno-pic             \
-			-m64                 \
-			-march=x86-64        \
-			-mabi=sysv           \
-			-mno-80387           \
-			-mno-mmx             \
-			-mno-sse             \
-			-mno-sse2            \
-			-mno-red-zone        \
-			-mcmodel=kernel      \
-			-MMD                 \
+			-fno-stack-check \
+			-fno-lto \
+			-fno-pie \
+			-fno-pic \
+			-m64 \
+			-march=x86-64 \
+			-mabi=sysv \
+			-mno-80387 \
+			-mno-mmx \
+			-mno-sse \
+			-mno-sse2 \
+			-mno-red-zone \
+			-mcmodel=kernel \
+			-MMD \
+			-Ikrnl/ \
+			-Ikrnl/arch/$(ARCH)
 
-LDFLAGS := -nostdlib \
+LDFLAGS :=	-nostdlib \
 			-static \
 			-no-pie \
 			-melf_x86_64 \
@@ -41,7 +62,10 @@ ISO=osdev.iso
 
 C_FILES=$(shell find krnl -name "*.c" -type f)
 AS_FILES=$(shell find krnl -name "*.asm" -type f)
+
+INCFILES=$(C_FILES:.c=.d)
 OBJ=$(C_FILES:.c=.o) $(AS_FILES:.asm=.o)
+
 
 .PHONY: all
 all: clean $(KERNEL) $(ISO) # Build everything
@@ -51,7 +75,7 @@ iso: $(ISO) # Build a bootable ISO
 
 .PHONY: run
 run: $(ISO) # Run OSDev
-	@qemu-system-x86_64 -m 512M -cdrom $(ISO)
+	@qemu-system-x86_64 -serial stdio -m 512M -cdrom $(ISO)
 
 .PHONY: format
 format: # Format the code as described in .clang-format
@@ -85,4 +109,4 @@ $(ISO): $(KERNEL)
 
 .PHONY: clean
 clean: # Clean generated files
-	@rm -rf $(OBJ) $(KERNEL) $(ISO)
+	@rm -rf $(INCFILES) $(OBJ) $(KERNEL) $(ISO)

@@ -17,15 +17,14 @@
  *
  */
 
-#include <dd/serial/serial.h>
+#ifndef __UTILS_H_
+#define __UTILS_H_
 
-#include <debug/log.h>
+#include <stdint.h>
 
-void _start(void)
-{
-	klog("Hello World!");
-	//serial_write("Hello World!");
+void outb(uint16_t port, uint8_t str);
+uint8_t inb(uint16_t port);
 
-	for (;;) {
-	}
-}
+void io_wait(void);
+
+#endif // __UTILS_H_

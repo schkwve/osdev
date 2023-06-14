@@ -17,15 +17,16 @@
  *
  */
 
-#include <dd/serial/serial.h>
+#ifndef __SERIAL_H_
+#define __SERIAL_H_
 
-#include <debug/log.h>
+#define COM1	0x3f8
 
-void _start(void)
-{
-	klog("Hello World!");
-	//serial_write("Hello World!");
+void serial_init();
 
-	for (;;) {
-	}
-}
+int serial_received();
+char serial_read();
+int serial_transmit_empty();
+void serial_write(char c);
+
+#endif // __SERIAL_H_
