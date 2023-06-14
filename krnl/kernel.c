@@ -24,7 +24,7 @@
 void _start(void)
 {
 	klog("Hello World!");
-	//serial_write("Hello World!");
+	// serial_write("Hello World!");
 
 	for (;;) {
 	}

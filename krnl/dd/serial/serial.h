@@ -20,7 +20,7 @@
 #ifndef __SERIAL_H_
 #define __SERIAL_H_
 
-#define COM1	0x3f8
+#define COM1 0x3f8
 
 void serial_init();
 

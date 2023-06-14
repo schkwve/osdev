@@ -21,7 +21,7 @@
 
 void outb(uint16_t port, uint8_t str)
 {
-	__asm__ volatile("outb %0, %1" :: "a"(str), "Nd"(port));
+	__asm__ volatile("outb %0, %1" ::"a"(str), "Nd"(port));
 }
 
 uint8_t inb(uint16_t port)
