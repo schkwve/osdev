@@ -1,0 +1,6 @@
+*.o
+*.d
+krnl.sys
+osdev.iso
+
+ex/
