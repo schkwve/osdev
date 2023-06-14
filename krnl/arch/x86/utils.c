@@ -19,39 +19,19 @@
 
 #include <arch.h>
 
-#include <dd/serial/serial.h>
-
-void serial_init()
+void outb(uint16_t port, uint8_t str)
 {
-	outb(COM1 + 1, 0x00);
-	outb(COM1 + 3, 0x80);
-	outb(COM1 + 0, 0x03); // Set divisor to 38400 baud (low byte)
-	outb(COM1 + 1, 0x00); // (high byte)
-	outb(COM1 + 3, 0x03);
-	outb(COM1 + 2, 0xC7);
-	outb(COM1 + 4, 0x0B);
+	__asm__ volatile("outb %0, %1" ::"a"(str), "Nd"(port));
 }
 
-int serial_received()
+uint8_t inb(uint16_t port)
 {
-	return inb(COM1 + 5) & 1;
+	uint8_t ret;
+	__asm__ volatile("inb %1, %0" : "=a"(ret) : "Nd"(port));
+	return ret;
 }
 
-char serial_read()
+void io_wait(void)
 {
-	while (serial_received() == 0)
-		;
-	return inb(COM1);
-}
-
-int serial_transmit_empty()
-{
-	return inb(COM1 + 5) & 0x20;
-}
-
-void serial_write(char c)
-{
-	while (serial_transmit_empty() == 0)
-		;
-	outb(COM1, c);
+	outb(0x80, 0);
 }

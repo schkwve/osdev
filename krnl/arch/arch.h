@@ -17,21 +17,13 @@
  *
  */
 
-#include <utils.h>
+#ifndef __ARCH_H_
+#define __ARCH_H_
 
-void outb(uint16_t port, uint8_t str)
-{
-	__asm__ volatile("outb %0, %1" ::"a"(str), "Nd"(port));
-}
+#ifdef x86_64
+#include <x86/utils.h>
+#else
+#error Unsupported architecture!
+#endif
 
-uint8_t inb(uint16_t port)
-{
-	uint8_t ret;
-	__asm__ volatile("inb %1, %0" : "=a"(ret) : "Nd"(port));
-	return ret;
-}
-
-void io_wait(void)
-{
-	outb(0x80, 0);
-}
+#endif // __ARCH_H_
