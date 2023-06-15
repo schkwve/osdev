@@ -29,8 +29,6 @@ void _start(void)
 
 	arch_init();
 
-	__asm__ volatile("int $0x14");
-
 	for (;;) {
 	}
 }
