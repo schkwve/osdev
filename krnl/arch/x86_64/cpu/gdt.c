@@ -46,14 +46,15 @@ void gdt_init()
 	tss_load();
 }
 
-void gdt_set_entry(int entry, uint16_t limit, uint32_t base, uint8_t access, uint8_t flags)
+void gdt_set_entry(int entry, uint16_t limit, uint32_t base, uint8_t access,
+				   uint8_t flags)
 {
 	gdt.entry[entry].limit = limit;
 
 	gdt.entry[entry].base_lo = (base >> 8) & 0xFF;
 	gdt.entry[entry].base_mid = (base >> 16) & 0xFF;
 	gdt.entry[entry].base_hi = (base >> 24) & 0xFF;
-	
+
 	gdt.entry[entry].access = access;
 	gdt.entry[entry].flags = flags;
 }

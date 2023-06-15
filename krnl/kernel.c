@@ -26,7 +26,7 @@
 void _start(void)
 {
 	serial_init();
-	
+
 	arch_init();
 	klog("Hello World!");
 	// serial_write("Hello World!");
