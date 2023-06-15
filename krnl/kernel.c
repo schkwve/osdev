@@ -27,9 +27,9 @@ void _start(void)
 {
 	serial_init();
 
-	klog("Hello World!");
-
 	arch_init();
+
+	__asm__ volatile("int $0x14");
 
 	for (;;) {
 	}

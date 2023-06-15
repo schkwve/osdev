@@ -76,7 +76,7 @@ iso: $(ISO) # Build a bootable ISO
 
 .PHONY: run
 run: $(ISO) # Run OSDev
-	@qemu-system-x86_64 -serial stdio -m 512M -cdrom $(ISO) -display none
+	@qemu-system-x86_64 -serial stdio -no-reboot -M smm=off -m 512M -cdrom $(ISO) -display none
 
 .PHONY: format
 format: # Format the code as described in .clang-format

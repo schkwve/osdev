@@ -17,23 +17,35 @@
 ;
 ;
 
+[bits 64]
+
 extern isr_handler
+
+%include "krnl/arch/x86_64/asm_utils.inc"
+
+_isr_handler:
+	cld
+	pushaq
+
+	mov rdi, rsp
+	call isr_handler
+	mov rsp, rax
+	
+	popaq
+	add rsp, 16
+	iretq
 
 %macro isr_err 1
 isr_%+%1:
-	cli
-	push byte %1
-	call isr_handler
-	iretq
+	push %1
+	jmp _isr_handler
 %endmacro
 
 %macro isr_noerr 1
 isr_%+%1:
-	cli
 	push 0
 	push %1
-	call isr_handler
-	iretq
+	jmp _isr_handler
 %endmacro
 
 isr_noerr 0
