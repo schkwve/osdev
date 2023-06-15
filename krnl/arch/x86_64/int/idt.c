@@ -19,16 +19,40 @@
 
 #include <arch.h>
 
-#include <dd/serial/serial.h>
-
 #include <debug/log.h>
 
-void _start(void)
+__attribute__((aligned(0x10)))
+idt_entry_t idt[256];
+idtr_t idtr;
+
+int vectors[256];
+uint64_t __handlers[256];
+
+extern uint64_t isr_tbl[];
+
+void idt_init()
 {
-	serial_init();
+	idtr.offset = (uint64_t)&idt[0];
+	idtr.size = (uint16_t)sizeof(idt_entry_t) * 256 - 1;
 
-	arch_init();
-
-	for (;;) {
+	for (uint8_t vector = 0; vector < 32; vector++) {
+		idt_set_desc(vector, isr_tbl[vector], 0x8E);
+		vectors[vector] = 1;
 	}
+
+	idt_load();
+	klog("Loaded IDT");
+}
+
+void idt_set_desc(uint8_t vector, void *isr, uint8_t flags)
+{
+	idt_entry_t *desc = &idt[vector];
+
+	desc->base_lo = (uint64_t)isr & 0xFFFF;
+	desc->cs = 0x08;
+	desc->ist = 0;
+	desc->flags = flags;
+	desc->base_mid = ((uint64_t)isr >> 16) & 0xFFFF;
+	desc->base_hi = ((uint64_t)isr >> 32) & 0xFFFFFFFF;
+	desc->reserved = 0;
 }

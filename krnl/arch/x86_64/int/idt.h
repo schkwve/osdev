@@ -17,18 +17,27 @@
  *
  */
 
-#include <arch.h>
+#ifndef __IDT_H_
+#define __IDT_H_
 
-#include <dd/serial/serial.h>
+typedef struct {
+	uint16_t base_lo;
+	uint16_t cs;
+	uint8_t ist;
+	uint8_t flags;
+	uint16_t base_mid;
+	uint32_t base_hi;
+	uint32_t reserved;
+} __attribute__((packed)) idt_entry_t;
 
-#include <debug/log.h>
+typedef struct {
+	uint16_t size;
+	uint64_t offset;
+} __attribute__((packed)) idtr_t;
 
-void _start(void)
-{
-	serial_init();
+void idt_init();
+void idt_set_desc(uint8_t vector, void *isr, uint8_t flags);
 
-	arch_init();
+extern void idt_load(void);
 
-	for (;;) {
-	}
-}
+#endif // __IDT_H_

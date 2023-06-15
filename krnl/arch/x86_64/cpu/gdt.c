@@ -40,10 +40,10 @@ void gdt_init()
 	gdtptr.size = sizeof(gdt) - 1;
 	gdtptr.offset = (uint64_t)&gdt;
 
-	klog("Loading GDT...");
-
 	gdt_load();
 	tss_load();
+
+	klog("Loaded GDT");
 }
 
 void gdt_set_entry(int entry, uint16_t limit, uint32_t base, uint8_t access,

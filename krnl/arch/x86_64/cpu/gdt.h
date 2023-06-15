@@ -73,6 +73,6 @@ void gdt_set_entry(int entry, uint16_t limit, uint32_t base, uint8_t access,
 				   uint8_t flags);
 
 extern void gdt_load(void);
-extern void gdt_relsec(void);
+extern void tss_load(void);
 
 #endif // _GDT_H_

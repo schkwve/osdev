@@ -24,6 +24,8 @@
 #include <x86/utils.h>
 
 #include <x86_64/cpu/gdt.h>
+
+#include <x86_64/int/idt.h>
 #else
 #error Unsupported architecture!
 #endif
