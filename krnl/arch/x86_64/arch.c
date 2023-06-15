@@ -23,6 +23,7 @@
 
 void arch_init()
 {
+	__asm__ volatile("cli");
 	gdt_init();
 }
 

@@ -17,27 +17,28 @@
 ;
 ;
 
-gdtr dw 0
-	 dq 0
+[bits 64]
+
+extern gdtptr
 
 global gdt_load
 gdt_load:
-	mov [gdtr], di
-	mov [gdtr+2], rsi
-	lgdt [gdtr]
-
-global gdt_reloadseg
-gdt_reloadseg:
+	lgdt [gdtptr]
 	push 0x08
-	lea rax, [rel .rel_cs]
+	lea rax, [rel .relcs]
 	push rax
 	retfq
-
-.rel_cs:
+.relcs
 	mov ax, 0x10
 	mov ds, ax
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
 	mov ss, ax
+	ret
+
+global tss_load
+tss_load:
+	mov ax, 0x2B
+	ltr ax
 	ret

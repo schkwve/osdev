@@ -28,4 +28,6 @@
 #error Unsupported architecture!
 #endif
 
+void arch_init();
+
 #endif // __ARCH_H_

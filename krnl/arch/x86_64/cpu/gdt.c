@@ -1,37 +1,57 @@
+/**
+ * OSDev
+ * Copyright (C) 2023 Jozef Nagy
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #include <arch.h>
 
 #include <debug/log.h>
 
+gdtr_t gdt;
+gdtptr_t gdtptr;
+
 void gdt_init()
 {
-	gdt_entry_t gdt[5];
-	gdtr_t gdtr;
+	gdt_set_entry(0, 0, 0, 0, 0);
+	gdt_set_entry(1, 0, 0, 0x9A, 0x20);
+	gdt_set_entry(2, 0, 0, 0x92, 0);
+	gdt_set_entry(3, 0, 0, 0xF2, 0);
+	gdt_set_entry(4, 0, 0, 0xF2, 0x20);
 
-	gdt_set_desc(&gdt[0], 0, 0, 0, 0);
-	gdt_set_desc(&gdt[1], 0, 0xFFFFF, 0x9A, 0xA);
-	gdt_set_desc(&gdt[2], 0, 0xFFFFF, 0x92, 0xC);
-	gdt_set_desc(&gdt[3], 0, 0xFFFFF, 0xFA, 0xA);
-	gdt_set_desc(&gdt[4], 0, 0xFFFFF, 0xF2, 0xC);
-	//gdt_set_desc(&gdt[5], 0, 0, 0, 0); // TODO: TSS
+	gdt.tss.size = sizeof(tss_t);
+	gdt.tss.flags1 = 0x89;
 
-	gdtr.size = sizeof(gdtr) - 1; // number of descriptors
-	gdtr.offset = (uint64_t)&gdt[0];
+	gdtptr.size = sizeof(gdt) - 1;
+	gdtptr.offset = (uint64_t)&gdt;
 
-	// Why is this looping infinitely???
 	klog("Loading GDT...");
 
-	gdt_load(&gdtr);
-	gdt_reloadseg();
+	gdt_load();
+	tss_load();
 }
 
-void gdt_set_desc(gdt_entry_t *gdt, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)
+void gdt_set_entry(int entry, uint16_t limit, uint32_t base, uint8_t access, uint8_t flags)
 {
-	gdt->base_lo = (base & 0xFFFF);
-	gdt->limit_lo = (limit & 0xFFFF);
-	gdt->base_mid = (base & 0xFF0000) >> 16;
-	gdt->limit_hi = (limit & 0xF0000) >> 16;
-	gdt->base_hi = (base & 0xFF000000) >> 24;
+	gdt.entry[entry].limit = limit;
 
-	gdt->flags = (flags & 0xF);
-	gdt->access = access;
+	gdt.entry[entry].base_lo = (base >> 8) & 0xFF;
+	gdt.entry[entry].base_mid = (base >> 16) & 0xFF;
+	gdt.entry[entry].base_hi = (base >> 24) & 0xFF;
+	
+	gdt.entry[entry].access = access;
+	gdt.entry[entry].flags = flags;
 }
