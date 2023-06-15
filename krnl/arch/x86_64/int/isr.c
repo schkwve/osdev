@@ -27,46 +27,45 @@ extern int vectors[256];
 extern uint64_t __handlers[256];
 
 const char *isr_exceptions[] = {
-	" #DE : Division Error",
-    " #DB : Debug Exception",
-    "  —  : NMI Interrupt",
-    " #BP : Breakpoint",
-    " #OF : Overflow",
-    " #BR : Bound Range Exceeded",
-    " #UD : Invalid Opcode",
-    " #NM : Device Not Available",
-    " #DF : Double Fault",
-    "  —  : Coprocessor Segment Overrun",
-    " #TS : Invalid TSS",
-    " #NP : Segment Not Present",
-    " #SS : Stack-Segment Fault",
-    " #GP : General Protection",
-    " #PF : Page Fault",
-    "  —  : Reserved",
-    " #MF : x87 FPU Floating-Point Error",
-    " #AC : Alignment Check",
-    " #MC : Machine Check",
-    " #XM : SIMD Floating-Point Exception",
-    " #VE : Virtualization Exception",
-    " #CP : Control Protection Exception",
-    "  —  : Reserved",
-    "  —  : Reserved",
-    "  —  : Reserved",
-    "  —  : Reserved",
-    "  —  : Reserved",
-    "  —  : Reserved",
-    " #HV : Hypervisor Injection Exception",
-    " #VC : VMM Communication Exception",
-    " #SX : Security Exception",
-    "  —  : Reserved"
+	"#DE: Division Error",
+	"#DB: Debug Exception",
+	" — : NMI Interrupt",
+	"#BP: Breakpoint",
+	"#OF: Overflow",
+	"#BR: Bound Range Exceeded",
+	"#UD: Invalid Opcode",
+	"#NM: Device Not Available",
+	"#DF: Double Fault",
+	" — : Coprocessor Segment Overrun",
+	"#TS: Invalid TSS",
+	"#NP: Segment Not Present",
+	"#SS: Stack-Segment Fault",
+	"#GP: General Protection",
+	"#PF: Page Fault",
+	" — : Reserved",
+	"#MF: x87 FPU Floating-Point Error",
+	"#AC: Alignment Check",
+	"#MC: Machine Check",
+	"#XM: SIMD Floating-Point Exception",
+	"#VE: Virtualization Exception",
+	"#CP: Control Protection Exception",
+	" — : Reserved",
+	" — : Reserved",
+	" — : Reserved",
+	" — : Reserved",
+	" — : Reserved",
+	" — : Reserved",
+	"#HV: Hypervisor Injection Exception",
+	"#VC: VMM Communication Exception",
+	"#SX: Security Exception",
+	" — : Reserved"
 };
 
 void isr_handler(cpu_regs_t regs)
 {
-	if (regs.isr_no <= 31) {
-		klog(" EXCEPTION OCCURED: %s\n", isr_exceptions[regs.isr_no]);
-		klog("INTERRUPT: %i\n", regs.isr_no);
-		klog("\n");
+	klog("%i", regs.isr_no);
+	if (regs.isr_no < 32) {
+		klog(" EXCEPTION OCCURED: %s (%i)\n\n", isr_exceptions[regs.isr_no], regs.isr_no);
 		klog("  RAX: 0x%.16llx, RBX:    0x%.16llx, RCX: 0x%.16llx, RDX: 0x%.16llx\n", regs.rax, regs.rbx, regs.rcx, regs.rdx);
 		klog("  RSI: 0x%.16llx, RDI:    0x%.16llx, RBP: 0x%.16llx, R8 : 0x%.16llx\n", regs.rsi, regs.rdi, regs.rbp, regs.r8);
 		klog("  R9 : 0x%.16llx, R10:    0x%.16llx, R11: 0x%.16llx, R12: 0x%.16llx\n", regs.r9, regs.r10, regs.r11, regs.r12);
@@ -79,7 +78,13 @@ void isr_handler(cpu_regs_t regs)
 		}
 	}
 
-	if (regs.isr_no <= 32 && regs.isr_no >= 48) {
-		// TODO: call handler
+	if (regs.isr_no >= 32 && regs.isr_no <= 47) {
+		if (__handlers[regs.isr_no] != (uint64_t)((void*)0)) {
+			typedef void handler(void);
+			handler *h = (handler *)__handlers[regs.isr_no];
+			h();
+		}
+
+		//pic_eoi();
 	}
 }

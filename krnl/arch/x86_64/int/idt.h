@@ -36,7 +36,7 @@ typedef struct {
 } __attribute__((packed)) idtr_t;
 
 void idt_init();
-void idt_set_desc(uint8_t vector, void *isr, uint8_t flags);
+void idt_set_desc(uint8_t vector, void *isr, uint8_t flags, uint8_t ist);
 
 extern void idt_load(void);
 
