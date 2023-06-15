@@ -20,6 +20,6 @@
 #ifndef __LOG_H_
 #define __LOG_H_
 
-void klog(char *str);
+void klog(char *fmt, ...);
 
 #endif // __LOG_H_

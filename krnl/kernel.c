@@ -27,6 +27,8 @@ void _start(void)
 {
 	serial_init();
 
+	klog("Hello World!");
+
 	arch_init();
 
 	for (;;) {

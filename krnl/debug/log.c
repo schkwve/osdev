@@ -19,10 +19,17 @@
 
 #include <dd/serial/serial.h>
 
-// TODO: To be changed to a "printf"-like function
-void klog(char *str)
+#include "printf.h"
+
+char klog_buf[4096];
+
+void klog(char *fmt, ...)
 {
-	while (*str != 0) {
-		serial_write(*str++);
-	}
+	va_list ptr;
+	va_start(ptr, fmt);
+
+	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
+	serial_write(klog_buf);
+
+	va_end(ptr);
 }

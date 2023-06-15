@@ -49,9 +49,16 @@ int serial_transmit_empty()
 	return inb(COM1 + 5) & 0x20;
 }
 
-void serial_write(char c)
+void serial_putc(char c)
 {
 	while (serial_transmit_empty() == 0)
 		;
 	outb(COM1, c);
+}
+
+void serial_write(char *str)
+{
+	while (*str) {
+		serial_putc(*str++);
+	}
 }

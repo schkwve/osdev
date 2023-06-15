@@ -26,7 +26,10 @@ void serial_init();
 
 int serial_received();
 char serial_read();
+
 int serial_transmit_empty();
-void serial_write(char c);
+
+void serial_putc(char c);
+void serial_write(char *str);
 
 #endif // __SERIAL_H_
