@@ -2,7 +2,8 @@
 
 #include <debug/log.h>
 
-void isr_handler(int err)
+__attribute__((interrupt))
+void isr_handler(struct interrupt_frame *frame)
 {
 	//
 }

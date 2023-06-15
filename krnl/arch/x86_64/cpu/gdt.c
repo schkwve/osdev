@@ -43,7 +43,7 @@ void gdt_init()
 	gdt_load();
 	tss_load();
 
-	klog("Loaded GDT");
+	klog("Loaded GDT\n");
 }
 
 void gdt_set_entry(int entry, uint16_t limit, uint32_t base, uint8_t access,

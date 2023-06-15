@@ -28,7 +28,7 @@ idtr_t idtr;
 int vectors[256];
 uint64_t __handlers[256];
 
-extern uint64_t isr_tbl[];
+extern uint64_t *isr_tbl[];
 
 void idt_init()
 {
@@ -41,7 +41,7 @@ void idt_init()
 	}
 
 	idt_load();
-	klog("Loaded IDT");
+	klog("Loaded IDT\n");
 }
 
 void idt_set_desc(uint8_t vector, void *isr, uint8_t flags)
