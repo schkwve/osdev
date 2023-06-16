@@ -19,13 +19,10 @@
 
 #include <arch.h>
 
-#include <dd/serial/serial.h>
-
 #include <debug/log.h>
 
 void _start(void)
 {
-	serial_init();
 	arch_init();
 
 	for (;;) {

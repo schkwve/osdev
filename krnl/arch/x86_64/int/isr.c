@@ -18,15 +18,14 @@
  */
 
 #include <arch.h>
-
 #include <debug/log.h>
-
-#include <dd/serial/serial.h>
 
 #include <stdint.h>
 
 extern int vectors[256];
-extern isr_handler_t __handlers[256];
+extern uint64_t isr_tbl[];
+
+isr_handler_t isr_handlers[256];
 
 const char *isr_exceptions[] = {
 	"#DE: Division Error",
@@ -65,8 +64,9 @@ const char *isr_exceptions[] = {
 
 void isr_handler(cpu_regs_t *regs)
 {
-	if (regs->isr_no < 32) {
-		klog(" EXCEPTION OCCURED: %s (%i)\n\n", isr_exceptions[regs->isr_no], regs->isr_no);
+	if (isr_handlers[regs->int_no] != NULL)
+	if (regs->int_no < 32) {
+		klog(" EXCEPTION OCCURED: %s (%i)\n\n", isr_exceptions[regs->int_no], regs->int_no);
 		klog("  RAX: 0x%.16llx, RBX:    0x%.16llx, RCX: 0x%.16llx, RDX: 0x%.16llx\n", regs->rax, regs->rbx, regs->rcx, regs->rdx);
 		klog("  RSI: 0x%.16llx, RDI:    0x%.16llx, RBP: 0x%.16llx, R8 : 0x%.16llx\n", regs->rsi, regs->rdi, regs->rbp, regs->r8);
 		klog("  R9 : 0x%.16llx, R10:    0x%.16llx, R11: 0x%.16llx, R12: 0x%.16llx\n", regs->r9, regs->r10, regs->r11, regs->r12);
@@ -78,12 +78,18 @@ void isr_handler(cpu_regs_t *regs)
 			__asm__ volatile("hlt");
 		}
 	}
+}
 
-	if (regs->isr_no >= 32 && regs->isr_no <= 47) {
-		if (__handlers[regs->isr_no] != NULL) {
-			__handlers[regs->isr_no](regs);
-		}
+void isr_register(uint8_t vector, isr_handler_t handler)
+{
+	idt_set_desc(vector, isr_tbl[vector], 0x80, 0);
+	isr_handlers[vector] = handler;
+	klog("Registed INT#%i\n", vector);
+}
 
-		//pic_eoi();
-	}
+void isr_deregister(uint8_t vector)
+{
+	idt_set_desc(vector, 0, 0, 0);
+	isr_handlers[vector] = NULL;
+	klog("Deregisted INT#%i\n", vector);
 }

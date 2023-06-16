@@ -23,8 +23,11 @@
 
 void arch_init()
 {
+	serial_init();
+
 	gdt_init();
 	idt_init();
+	irq_init();
 }
 
 #endif

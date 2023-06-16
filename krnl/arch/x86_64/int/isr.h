@@ -20,6 +20,13 @@
 #ifndef __ISR_H_
 #define __ISR_H_
 
+#include <arch.h>
+
+typedef void (*isr_handler_t)(cpu_regs_t *regs);
+
 void isr_handler(cpu_regs_t *regs);
+
+void isr_register(uint8_t vector, isr_handler_t handler);
+void isr_deregister(uint8_t vector);
 
 #endif // __ISR_H_

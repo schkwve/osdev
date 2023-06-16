@@ -17,7 +17,7 @@
  *
  */
 
-#include <dd/serial/serial.h>
+#include <arch.h>
 
 #include "printf.h"
 

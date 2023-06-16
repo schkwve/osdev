@@ -25,7 +25,6 @@ __attribute__((aligned(0x10)))
 idt_entry_t idt[256];
 idtr_t idtr;
 
-isr_handler_t __handlers[256];
 extern uint64_t *isr_tbl[];
 
 void idt_init()
@@ -43,28 +42,11 @@ void idt_init()
 
 void idt_set_desc(uint8_t vector, void *isr, uint8_t flags, uint8_t ist)
 {
-	idt_entry_t *desc = &idt[vector];
-
-	desc->base_lo = (uint64_t)isr & 0xFFFF;
-	desc->cs = 0x08;
-	desc->ist = ist;
-	desc->flags = flags;
-	desc->base_mid = ((uint64_t)isr >> 16) & 0xFFFF;
-	desc->base_hi = ((uint64_t)isr >> 32) & 0xFFFFFFFF;
-	desc->reserved = 0;
-}
-
-void idt_register(uint8_t vector, isr_handler_t handler)
-{
-	__handlers[vector] = handler;
-	idt_set_desc(vector, isr_tbl[vector], 0x8E, 2);
-	klog("Registed INT#%i\n", vector);
-}
-
-void idt_deregister(uint8_t vector)
-{
-	// TODO: NULL
-	idt_set_desc(vector, 0, 0, 0);
-	__handlers[vector] = NULL;
-	klog("Deregisted INT#%i\n", vector);
+	idt[vector].base_lo = (uint64_t)isr & 0xFFFF;
+	idt[vector].cs = 0x08;
+	idt[vector].ist = ist;
+	idt[vector].flags = flags;
+	idt[vector].base_mid = ((uint64_t)isr >> 16) & 0xFFFF;
+	idt[vector].base_hi = ((uint64_t)isr >> 32) & 0xFFFFFFFF;
+	idt[vector].reserved = 0;
 }

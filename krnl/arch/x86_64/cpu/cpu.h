@@ -37,7 +37,7 @@ typedef struct {
 	uint64_t rbx;
 	uint64_t rax;
 	
-	uint64_t isr_no;
+	uint64_t int_no;
 	uint64_t err;
 	
 	uint64_t rip;

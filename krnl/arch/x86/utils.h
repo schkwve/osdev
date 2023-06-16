@@ -25,6 +25,9 @@
 void outb(uint16_t port, uint8_t str);
 uint8_t inb(uint16_t port);
 
+void sti(void);
+void cli(void);
+
 void io_wait(void);
 
 #endif // __UTILS_H_

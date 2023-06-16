@@ -19,8 +19,6 @@
 
 #include <arch.h>
 
-#include <dd/serial/serial.h>
-
 void serial_init()
 {
 	outb(COM1 + 1, 0x00);
