@@ -21,8 +21,7 @@
 
 #include <debug/log.h>
 
-__attribute__((aligned(0x10)))
-idt_entry_t idt[256];
+__attribute__((aligned(0x10))) idt_entry_t idt[256];
 idtr_t idtr;
 
 extern uint64_t *isr_tbl[];

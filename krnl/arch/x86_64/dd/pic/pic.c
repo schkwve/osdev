@@ -25,7 +25,7 @@ void pic_init(uint8_t offset1, uint8_t offset2)
 {
 	uint8_t mask1 = inb(PIC1_DATA);
 	uint8_t mask2 = inb(PIC2_DATA);
-	
+
 	outb(PIC1_CMD, PIC_ICW1_ICW4 | PIC_ICW1_INIT);
 	io_wait();
 	outb(PIC2_CMD, PIC_ICW1_ICW4 | PIC_ICW1_INIT);
