@@ -29,6 +29,8 @@ void arch_init()
 	idt_init();
 	irq_init();
 	pit_init();
+
+	acpi_init();
 }
 
 #endif

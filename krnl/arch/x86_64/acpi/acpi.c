@@ -17,31 +17,9 @@
  *
  */
 
-#ifndef __ARCH_H_
-#define __ARCH_H_
+#include <arch.h>
 
-#ifdef x86_64
-#include <x86/utils.h>
-
-#include <x86_64/acpi/acpi.h>
-#include <x86_64/acpi/rsdt.h>
-
-#include <x86_64/boot/limine.h>
-
-#include <x86_64/cpu/cpu.h>
-#include <x86_64/cpu/gdt.h>
-
-#include <x86_64/dd/serial/serial.h>
-#include <x86_64/dd/pic/pic.h>
-#include <x86_64/dd/pit/pit.h>
-
-#include <x86_64/int/idt.h>
-#include <x86_64/int/isr.h>
-#include <x86_64/int/irq.h>
-#else
-#error Unsupported architecture!
-#endif
-
-void arch_init();
-
-#endif // __ARCH_H_
+void acpi_init()
+{
+	acpi_rsdp_init();
+}

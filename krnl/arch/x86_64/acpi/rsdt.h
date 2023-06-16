@@ -17,31 +17,46 @@
  *
  */
 
-#ifndef __ARCH_H_
-#define __ARCH_H_
+#ifndef __RSDT_H_
+#define __RSDT_H_
 
-#ifdef x86_64
-#include <x86/utils.h>
+typedef struct {
+	char sig[8];
+	uint8_t cs;
+	char oem_id[6];
+	uint8_t rev;
+	uint32_t rsdt_addr;
+	uint32_t len;
+	uint64_t xsdt_addr;
+	uint8_t ext_cs;
+	uint8_t reserved[3];
+} __attribute__((packed)) rsdp_t;
 
-#include <x86_64/acpi/acpi.h>
-#include <x86_64/acpi/rsdt.h>
+typedef struct {
+	rsdp_t rsdp;
+	uint32_t len;
+	uint64_t xsdt_addr;
+	uint8_t ext_cs;
+	uint8_t reserved[3];
+} __attribute__((packed)) rsdp20_t;
 
-#include <x86_64/boot/limine.h>
+///
 
-#include <x86_64/cpu/cpu.h>
-#include <x86_64/cpu/gdt.h>
+typedef struct {
+	char sig[4];
+	uint32_t len;
+	uint8_t rev;
+	uint8_t cs;
+	char oem_id[6];
+	char oem_tbl_id[8];
+	uint32_t oem_rev;
+	uint32_t creator_id;
+	uint32_t creator_rev;
+} rsdt_t;
 
-#include <x86_64/dd/serial/serial.h>
-#include <x86_64/dd/pic/pic.h>
-#include <x86_64/dd/pit/pit.h>
+void acpi_rsdp_init();
 
-#include <x86_64/int/idt.h>
-#include <x86_64/int/isr.h>
-#include <x86_64/int/irq.h>
-#else
-#error Unsupported architecture!
-#endif
+void acpi_rsdt_init(rsdt_t *rsdt);
+//void acpi_xsdt_init(xsdt_t *xsdt_addr);
 
-void arch_init();
-
-#endif // __ARCH_H_
+#endif // __RSDT_H_
