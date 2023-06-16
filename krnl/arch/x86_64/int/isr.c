@@ -23,8 +23,10 @@
 
 #include <dd/serial/serial.h>
 
+#include <stdint.h>
+
 extern int vectors[256];
-extern uint64_t __handlers[256];
+extern isr_handler_t __handlers[256];
 
 const char *isr_exceptions[] = {
 	"#DE: Division Error",
@@ -61,16 +63,15 @@ const char *isr_exceptions[] = {
 	" — : Reserved"
 };
 
-void isr_handler(cpu_regs_t regs)
+void isr_handler(cpu_regs_t *regs)
 {
-	klog("%i", regs.isr_no);
-	if (regs.isr_no < 32) {
-		klog(" EXCEPTION OCCURED: %s (%i)\n\n", isr_exceptions[regs.isr_no], regs.isr_no);
-		klog("  RAX: 0x%.16llx, RBX:    0x%.16llx, RCX: 0x%.16llx, RDX: 0x%.16llx\n", regs.rax, regs.rbx, regs.rcx, regs.rdx);
-		klog("  RSI: 0x%.16llx, RDI:    0x%.16llx, RBP: 0x%.16llx, R8 : 0x%.16llx\n", regs.rsi, regs.rdi, regs.rbp, regs.r8);
-		klog("  R9 : 0x%.16llx, R10:    0x%.16llx, R11: 0x%.16llx, R12: 0x%.16llx\n", regs.r9, regs.r10, regs.r11, regs.r12);
-		klog("  R13: 0x%.16llx, R14:    0x%.16llx, R15: 0x%.16llx, SS : 0x%.16llx\n", regs.r13, regs.r14, regs.r15, regs.ss);
-		klog("  RSP: 0x%.16llx, RFLAGS: 0x%.16llx, CS : 0x%.16llx, RIP: 0x%.16llx\n", regs.rsp, regs.rflags, regs.cs, regs.rip);
+	if (regs->isr_no < 32) {
+		klog(" EXCEPTION OCCURED: %s (%i)\n\n", isr_exceptions[regs->isr_no], regs->isr_no);
+		klog("  RAX: 0x%.16llx, RBX:    0x%.16llx, RCX: 0x%.16llx, RDX: 0x%.16llx\n", regs->rax, regs->rbx, regs->rcx, regs->rdx);
+		klog("  RSI: 0x%.16llx, RDI:    0x%.16llx, RBP: 0x%.16llx, R8 : 0x%.16llx\n", regs->rsi, regs->rdi, regs->rbp, regs->r8);
+		klog("  R9 : 0x%.16llx, R10:    0x%.16llx, R11: 0x%.16llx, R12: 0x%.16llx\n", regs->r9, regs->r10, regs->r11, regs->r12);
+		klog("  R13: 0x%.16llx, R14:    0x%.16llx, R15: 0x%.16llx, SS : 0x%.16llx\n", regs->r13, regs->r14, regs->r15, regs->ss);
+		klog("  RSP: 0x%.16llx, RFLAGS: 0x%.16llx, CS : 0x%.16llx, RIP: 0x%.16llx\n", regs->rsp, regs->rflags, regs->cs, regs->rip);
 
 		// TODO: implement panic()
 		for (;;) {
@@ -78,11 +79,9 @@ void isr_handler(cpu_regs_t regs)
 		}
 	}
 
-	if (regs.isr_no >= 32 && regs.isr_no <= 47) {
-		if (__handlers[regs.isr_no] != (uint64_t)((void*)0)) {
-			typedef void handler(void);
-			handler *h = (handler *)__handlers[regs.isr_no];
-			h();
+	if (regs->isr_no >= 32 && regs->isr_no <= 47) {
+		if (__handlers[regs->isr_no] != NULL) {
+			__handlers[regs->isr_no](regs);
 		}
 
 		//pic_eoi();

@@ -20,6 +20,6 @@
 #ifndef __ISR_H_
 #define __ISR_H_
 
-void isr_handler(cpu_regs_t regs);
+void isr_handler(cpu_regs_t *regs);
 
 #endif // __ISR_H_

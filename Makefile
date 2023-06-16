@@ -44,7 +44,8 @@ CFLAGS :=	-std=c99 \
 			-MMD \
 			-D$(ARCH) \
 			-Ikrnl/ \
-			-Ikrnl/arch
+			-Ikrnl/arch \
+			-Icorelib
 
 LDFLAGS :=	-nostdlib \
 			-static \

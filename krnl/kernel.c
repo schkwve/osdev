@@ -26,7 +26,6 @@
 void _start(void)
 {
 	serial_init();
-
 	arch_init();
 
 	for (;;) {

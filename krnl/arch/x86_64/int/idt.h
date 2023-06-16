@@ -20,6 +20,8 @@
 #ifndef __IDT_H_
 #define __IDT_H_
 
+#include <arch.h>
+
 typedef struct {
 	uint16_t base_lo;
 	uint16_t cs;
@@ -35,8 +37,13 @@ typedef struct {
 	uint64_t offset;
 } __attribute__((packed)) idtr_t;
 
+typedef void (*isr_handler_t)(cpu_regs_t *regs);
+
 void idt_init();
 void idt_set_desc(uint8_t vector, void *isr, uint8_t flags, uint8_t ist);
+
+void idt_register(uint8_t vector, isr_handler_t handler);
+void idt_deregister(uint8_t vector);
 
 extern void idt_load(void);
 
