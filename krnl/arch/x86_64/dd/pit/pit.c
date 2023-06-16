@@ -18,43 +18,39 @@
  */
 
 #include <arch.h>
+#include <stdint.h>
 
 #include <debug/log.h>
 
-irq_handler_t __handlers[16];
+uint8_t pit_ticks;
 
-void irq_init(void)
+void pit_init()
 {
-	pic_init(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8);
+	uint16_t divisor = 1193182 / 1000;
+	outb(PIT_CMD, PIT_BINARY | PIT_MODE3 | PIT_RW_BOTH | PIT_COUNTER0);
+	outb(PIT_COUNTER0, divisor);
+	outb(PIT_COUNTER0, divisor >> 8);
 
-	for (int i = 0; i < 16; i++) {
-		isr_register(PIC_REMAP_OFFSET + i, irq_handler);
-	}
-
-	sti();
+	irq_register(0, &pit_handler);
 }
 
-void irq_register(int irq, irq_handler_t handler)
+void pit_handler()
 {
-	__handlers[irq] = handler;
-	klog("Registered IRQ%i\n", irq);
+	klog("PIT called");
+	pit_ticks += 1;
+	pic_eoi(0);
 }
 
-void irq_deregister(int irq)
+uint8_t pit_get_ticks()
 {
-	__handlers[irq] = NULL;
-	klog("Deregistered IRQ%i\n", irq);
+	return pit_ticks;
 }
 
-void irq_handler(cpu_regs_t *regs)
+void pit_wait(uint8_t ms)
 {
-	int irq = regs->int_no - PIC_REMAP_OFFSET;
+	uint8_t now = pit_get_ticks();
+	++ms;
 
-	if (__handlers[irq] != NULL) {
-		__handlers[irq](regs);
-	} else {
-		klog("Unhandled IRQ%i\n", irq);
-	}
-
-	pic_eoi(irq);
+	while (pit_get_ticks() - now < ms)
+		;
 }

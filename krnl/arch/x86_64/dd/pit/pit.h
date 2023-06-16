@@ -17,44 +17,19 @@
  *
  */
 
-#include <arch.h>
+#ifndef __PIT_H_
+#define __PIT_H_
 
-#include <debug/log.h>
+#define PIT_COUNTER0 0x40
+#define PIT_CMD 0x43
 
-irq_handler_t __handlers[16];
+#define PIT_BINARY 0x00
+#define PIT_MODE3 0x04
+#define PIT_RW_BOTH 0x30
 
-void irq_init(void)
-{
-	pic_init(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8);
+void pit_init();
+void pit_handler();
+uint8_t pit_get_ticks();
+void pit_wait(uint8_t ms);
 
-	for (int i = 0; i < 16; i++) {
-		isr_register(PIC_REMAP_OFFSET + i, irq_handler);
-	}
-
-	sti();
-}
-
-void irq_register(int irq, irq_handler_t handler)
-{
-	__handlers[irq] = handler;
-	klog("Registered IRQ%i\n", irq);
-}
-
-void irq_deregister(int irq)
-{
-	__handlers[irq] = NULL;
-	klog("Deregistered IRQ%i\n", irq);
-}
-
-void irq_handler(cpu_regs_t *regs)
-{
-	int irq = regs->int_no - PIC_REMAP_OFFSET;
-
-	if (__handlers[irq] != NULL) {
-		__handlers[irq](regs);
-	} else {
-		klog("Unhandled IRQ%i\n", irq);
-	}
-
-	pic_eoi(irq);
-}
+#endif // __PIT_H_

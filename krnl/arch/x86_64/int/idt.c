@@ -39,7 +39,7 @@ void idt_init()
 	klog("Loaded IDT\n");
 }
 
-void idt_set_desc(uint8_t vector, void *isr, uint8_t flags, uint8_t ist)
+void idt_set_desc(uint8_t vector, uint8_t *isr, uint8_t flags, uint8_t ist)
 {
 	idt[vector].base_lo = (uint64_t)isr & 0xFFFF;
 	idt[vector].cs = 0x08;

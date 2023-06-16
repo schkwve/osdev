@@ -28,6 +28,7 @@
 
 #include <x86_64/dd/serial/serial.h>
 #include <x86_64/dd/pic/pic.h>
+#include <x86_64/dd/pit/pit.h>
 
 #include <x86_64/int/idt.h>
 #include <x86_64/int/isr.h>

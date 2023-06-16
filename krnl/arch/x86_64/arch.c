@@ -28,6 +28,7 @@ void arch_init()
 	gdt_init();
 	idt_init();
 	irq_init();
+	pit_init();
 }
 
 #endif
