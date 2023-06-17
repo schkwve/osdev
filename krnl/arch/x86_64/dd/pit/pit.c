@@ -36,7 +36,6 @@ void pit_init()
 
 void pit_handler()
 {
-	klog("PIT called");
 	pit_ticks += 1;
 	pic_eoi(0);
 }

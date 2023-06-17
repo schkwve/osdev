@@ -17,36 +17,19 @@
  *
  */
 
-#ifndef __RSDT_H_
-#define __RSDT_H_
-
-#include <arch.h>
-#include "sdt.h"
+#ifndef __SDT_H_
+#define __SDT_H_
 
 typedef struct {
-	char sig[8];
+	char sig[4];
+	uint32_t len;
+	uint8_t rev;
 	uint8_t cs;
 	char oem_id[6];
-	uint8_t rev;
-	uint32_t rsdt_addr;
-	uint32_t len;
-	uint64_t xsdt_addr;
-	uint8_t ext_cs;
-	uint8_t reserved[3];
-} __attribute__((packed)) rsdp_t;
+	char oem_tbl_id[8];
+	uint32_t oem_rev;
+	uint32_t creator_id;
+	uint32_t creator_rev;
+} __attribute__((packed)) sdt_t;
 
-///
-
-typedef struct {
-	sdt_t header;
-	uint32_t ptr[];
-} __attribute__((packed)) rsdt_t;
-
-typedef struct {
-	sdt_t header;
-	uint64_t ptr[];
-} __attribute__((packed)) xsdt_t;
-
-void *acpi_rsdp_init();
-
-#endif // __RSDT_H_
+#endif // __SDT_H_

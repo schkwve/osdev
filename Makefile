@@ -62,8 +62,8 @@ endif
 KERNEL=krnl.sys
 ISO=osdev.iso
 
-C_FILES=$(shell find krnl -name "*.c" -type f)
-AS_FILES=$(shell find krnl -name "*.asm" -type f)
+C_FILES=$(shell find krnl corelib -name "*.c" -type f)
+AS_FILES=$(shell find krnl corelib -name "*.asm" -type f)
 
 INCFILES=$(C_FILES:.c=.d)
 OBJ=$(C_FILES:.c=.o) $(AS_FILES:.asm=.o)
@@ -77,7 +77,7 @@ iso: $(ISO) # Build a bootable ISO
 
 .PHONY: run
 run: $(ISO) # Run OSDev
-	@qemu-system-x86_64 -serial stdio -no-reboot -M smm=off -m 512M -cdrom $(ISO) -display none
+	@qemu-system-x86_64 -serial stdio -smp 4 -no-reboot -M smm=off -m 512M -cdrom $(ISO) -display none
 
 .PHONY: format
 format: # Format the code as described in .clang-format

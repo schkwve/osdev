@@ -29,7 +29,7 @@ static volatile struct limine_rsdp_request rsdp_request = {
     .revision = 0,
 };
 
-void acpi_rsdp_init()
+void *acpi_rsdp_init()
 {
 	uint64_t *rsdp_addr = rsdp_request.response->address;
 	
@@ -42,47 +42,16 @@ void acpi_rsdp_init()
 
 	if ((checksum & 0xFF) != 0) {
 		klog("Invalid RSDP Checksum!\n");
+		return NULL;
 	}
 
 	rsdp_t *rsdp = (rsdp_t *)rsdp_addr;
 	if (rsdp->rev >= 2) {
 		// Not tested, but should work
 		klog("ACPI v2.0 or above\n");
-		rsdt_t *xsdt = (rsdt_t *)rsdp->xsdt_addr;
-
-		uint8_t checksum = 0;
-		for (uint8_t i = 0; i <= xsdt->len; i++) {
-			checksum += ((uint8_t *)xsdt)[i];
-		}
-
-		if (checksum != 0) {
-			klog("Invalid XSDT Checksum\n");
-		}
+		return (void *)rsdp->xsdt_addr;
 	} else {
 		klog("ACPI v1.0\n");
-		rsdt_t *rsdt = (rsdt_t *)rsdp->rsdt_addr;
-
-		uint8_t checksum = 0;
-		for (uint8_t i = 0; i <= rsdt->len; i++) {
-			checksum += ((uint8_t *)rsdt)[i];
-		}
-
-		if (checksum != 0) {
-			klog("Invalid RSDT Checksum\n");
-		}
+		return (void *)rsdp->rsdt_addr;
 	}
 }
-
-void acpi_rsdt_init(rsdt_t *rsdt)
-{
-	// Validate RSDT
-	uint8_t checksum = 0;
-	for (uint8_t i = 0; i <= rsdt->len; i++) {
-		checksum += ((uint8_t *)rsdt)[i];
-	}
-
-	if (checksum != 0) {
-		klog("Invalid RSDT Checksum\n");
-	}
-}
-

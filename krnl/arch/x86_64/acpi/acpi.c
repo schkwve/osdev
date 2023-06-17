@@ -21,5 +21,6 @@
 
 void acpi_init()
 {
-	acpi_rsdp_init();
+	void *rsdp = acpi_rsdp_init();
+	acpi_madt_init(rsdp);
 }

@@ -25,6 +25,8 @@
 
 #include <x86_64/acpi/acpi.h>
 #include <x86_64/acpi/rsdt.h>
+#include <x86_64/acpi/madt.h>
+#include <x86_64/acpi/sdt.h>
 
 #include <x86_64/boot/limine.h>
 

@@ -17,36 +17,11 @@
  *
  */
 
-#ifndef __RSDT_H_
-#define __RSDT_H_
+#ifndef __MADT_H_
+#define __MADT_H_
 
-#include <arch.h>
-#include "sdt.h"
+#include <stdint.h>
 
-typedef struct {
-	char sig[8];
-	uint8_t cs;
-	char oem_id[6];
-	uint8_t rev;
-	uint32_t rsdt_addr;
-	uint32_t len;
-	uint64_t xsdt_addr;
-	uint8_t ext_cs;
-	uint8_t reserved[3];
-} __attribute__((packed)) rsdp_t;
+void acpi_madt_init(void *rsdt_addr);
 
-///
-
-typedef struct {
-	sdt_t header;
-	uint32_t ptr[];
-} __attribute__((packed)) rsdt_t;
-
-typedef struct {
-	sdt_t header;
-	uint64_t ptr[];
-} __attribute__((packed)) xsdt_t;
-
-void *acpi_rsdp_init();
-
-#endif // __RSDT_H_
+#endif // __MADT_H_
