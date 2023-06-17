@@ -17,12 +17,29 @@
  *
  */
 
-#ifndef __STRING_H_
-#define __STRING_H_
-
+#include <string.h>
 #include <stdint.h>
 
-void *memcpy(void *dest, const void *src, size_t n);
-int strncmp(const char *s1, const char *s2, size_t n);
+void *memcpy(void *dest, const void *src, size_t n)
+{
+	char *a = (char *)src;
+	char *b = (char *)dest;
 
-#endif // __STRING_H_
+	for (int i = 0; i < n; i++) {
+		b[i] = a[i];
+	}
+}
+
+int strncmp(const char *s1, const char *s2, size_t n)
+{
+	while (n && *s1 && (*s1 == *s2)) {
+		++s1;
+		++s2;
+		--n;
+	}
+	if (n == 0) {
+		return 0;
+	} else {
+		return (*(uint8_t *)s1 - *(uint8_t *)s2);
+	}
+}
