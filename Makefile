@@ -70,10 +70,13 @@ OBJ=$(C_FILES:.c=.o) $(AS_FILES:.asm=.o)
 
 
 .PHONY: all
-all: clean $(KERNEL) $(ISO) # Build everything
+all: clean kernel iso # Build everything
 
 .PHONY: iso
 iso: $(ISO) # Build a bootable ISO
+
+.PHONY: kernel # Build the kernel binary file
+kernel: $(KERNEL)
 
 .PHONY: run
 run: $(ISO) # Run OSDev

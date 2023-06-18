@@ -17,38 +17,9 @@
  *
  */
 
-#include <arch.h>
+#ifndef __APIC_H_
+#define __APIC_H_
 
-#include <stdint.h>
+void apic_init();
 
-static inline void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx)
-{
-	__asm__ volatile("cpuid" : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx) : "0"(reg));
-}
-
-void outb(uint16_t port, uint8_t str)
-{
-	__asm__ volatile("outb %0, %1" ::"a"(str), "Nd"(port));
-}
-
-uint8_t inb(uint16_t port)
-{
-	uint8_t ret;
-	__asm__ volatile("inb %1, %0" : "=a"(ret) : "Nd"(port));
-	return ret;
-}
-
-void sti(void)
-{
-	__asm__ volatile("sti");
-}
-
-void cli(void)
-{
-	__asm__ volatile("cli");
-}
-
-void io_wait(void)
-{
-	outb(0x80, 0);
-}
+#endif // __APIC_H_

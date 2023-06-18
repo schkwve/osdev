@@ -58,4 +58,6 @@ void pic_unmask(int irq);
 
 void pic_disable();
 
+void pic_send(uint16_t pic, uint8_t data);
+
 #endif // __PIC_H_
