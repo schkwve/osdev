@@ -62,7 +62,6 @@ const char *isr_exceptions[] = { "#DE: Division Error",
 
 void isr_handler(cpu_regs_t *regs)
 {
-	if (isr_handlers[regs->int_no] != NULL)
 		if (regs->int_no < 32) {
 			klog(" EXCEPTION OCCURED: %s (%i)\n\n",
 				 isr_exceptions[regs->int_no], regs->int_no);
@@ -91,7 +90,7 @@ void isr_handler(cpu_regs_t *regs)
 
 void isr_register(uint8_t vector, isr_handler_t handler)
 {
-	idt_set_desc(vector, isr_tbl[vector], 0x80, 0);
+	idt_set_desc(vector, isr_tbl[vector], 0x8, 0);
 	isr_handlers[vector] = handler;
 	klog("Registed INT#%i\n", vector);
 }
