@@ -21,12 +21,22 @@
 
 #include <stdint.h>
 
-static inline void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx,
+void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx,
 						 uint32_t *ecx, uint32_t *edx)
 {
 	__asm__ volatile("cpuid"
 					 : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx)
 					 : "0"(reg));
+}
+
+void rdmsr(uint32_t msr, uint32_t *low, uint32_t *high)
+{
+	__asm__ volatile("rdmsr" : "=a"(*low), "=d"(*high) : "c"(msr));
+}
+
+void wrmsr(uint32_t msr, uint32_t low, uint32_t high)
+{
+	__asm__ volatile("wrmsr" :: "a"(low), "d"(high), "c"(msr));
 }
 
 void outb(uint16_t port, uint8_t str)
