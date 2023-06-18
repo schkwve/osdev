@@ -113,4 +113,6 @@ typedef struct {
 	uint64_t ss;
 } cpu_regs_t;
 
+void cpu_check();
+
 #endif // __CPU_H_
