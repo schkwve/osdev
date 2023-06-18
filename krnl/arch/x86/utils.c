@@ -21,8 +21,8 @@
 
 #include <stdint.h>
 
-void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx,
-						 uint32_t *ecx, uint32_t *edx)
+void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx, uint32_t *ecx,
+		   uint32_t *edx)
 {
 	__asm__ volatile("cpuid"
 					 : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx)
@@ -36,7 +36,7 @@ void rdmsr(uint32_t msr, uint32_t *low, uint32_t *high)
 
 void wrmsr(uint32_t msr, uint32_t low, uint32_t high)
 {
-	__asm__ volatile("wrmsr" :: "a"(low), "d"(high), "c"(msr));
+	__asm__ volatile("wrmsr" ::"a"(low), "d"(high), "c"(msr));
 }
 
 void outb(uint16_t port, uint8_t str)
@@ -61,7 +61,49 @@ void cli(void)
 	__asm__ volatile("cli");
 }
 
+///
+
 void io_wait(void)
 {
 	outb(0x80, 0);
+}
+
+void mmio_outb(void *p, uint8_t data)
+{
+	*(volatile uint8_t *)(p) = data;
+}
+
+uint8_t mmio_inb(void *p)
+{
+	return *(volatile uint8_t *)(p);
+}
+
+void mmio_outc(void *p, uint16_t data)
+{
+	*(volatile uint16_t *)(p) = data;
+}
+
+uint16_t mmio_inc(void *p)
+{
+	return *(volatile uint16_t *)(p);
+}
+
+void mmio_outw(void *p, uint32_t data)
+{
+	*(volatile uint32_t *)(p) = data;
+}
+
+uint32_t mmio_inw(void *p)
+{
+	return *(volatile uint32_t *)(p);
+}
+
+void mmio_outq(void *p, uint64_t data)
+{
+	*(volatile uint64_t *)(p) = data;
+}
+
+uint64_t mmio_inq(void *p)
+{
+	return *(volatile uint64_t *)(p);
 }
