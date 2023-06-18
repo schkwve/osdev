@@ -55,7 +55,7 @@ void acpi_madt_init(void *rsdt_addr)
 				}
 			}
 
-			klog("Found %d cores, IOAPIC %lx, LAPIC %lx, Processor IDs: ", ncores, ioapic_ptr, lapic_ptr);
+			klog("Found %d cores, IOAPIC %lx, LAPIC %lx, Processor IDs:", ncores, ioapic_ptr, lapic_ptr);
 			for (int i = 0; i < ncores; i++) {
 				klog(" %d", lapic_ids[i]);
 			}
