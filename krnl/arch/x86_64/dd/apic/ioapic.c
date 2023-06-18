@@ -24,6 +24,20 @@ extern uint64_t ioapic_ptr;
 
 void ioapic_init()
 {
+	uint32_t ioapicver = ioapic_in(ioapic_ptr, IOAPICVER);
+	uint32_t count = ((ioapicver >> 16) & 0xFF) + 1;
+
+	klog("Number of I/O APIC pins: %d\n", count);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		ioapic_set_entry(ioapic_ptr, i, 1 << 16);
+	}
+}
+
+void ioapic_set_entry(uint8_t *base, uint8_t index, uint64_t data)
+{
+	ioapic_out(base, IOREDTBL + index * 2, (uint32_t)data);
+	ioapic_out(base, IOREDTBL + index * 2 + 1, (uint32_t)(data >> 32));
 }
 
 uint32_t ioapic_in(uint8_t *base, uint8_t reg)

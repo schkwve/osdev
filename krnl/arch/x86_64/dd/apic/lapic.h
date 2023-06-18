@@ -54,11 +54,9 @@ typedef struct {
 	uint8_t src;
 	uint32_t interrupt;
 	uint16_t flags;
-} __attribute__((packed)) apic_int_override_t;
+} __attribute__((packed)) apic_iso_t;
 
-void apic_init();
-
-uint32_t lapic_get_id();
+void lapic_init();
 
 void lapic_send_init(uint32_t apic_id);
 void lapic_send_startup(uint32_t apic_id, uint32_t vector);

@@ -113,6 +113,8 @@ typedef struct {
 	uint64_t ss;
 } cpu_regs_t;
 
+extern void ap_trampoline(void);
+
 void cpu_check();
 
 #endif // __CPU_H_

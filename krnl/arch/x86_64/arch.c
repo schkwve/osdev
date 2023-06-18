@@ -20,6 +20,7 @@
 #ifdef x86_64
 
 #include <arch.h>
+#include <debug/log.h>
 
 extern uint64_t ioapic_ptr;
 
@@ -34,11 +35,14 @@ void arch_init()
 	acpi_init();
 	cpu_check();
 
-	apic_init();
+	lapic_init();
 	ioapic_init();
 
 	pit_init();
+	ioapic_set_entry(ioapic_ptr, acpi_remap_irq(IRQ_PIT), INT_PIT);
 	sti();
+	
+	klog("Init done\n");
 }
 
 #endif

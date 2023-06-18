@@ -25,7 +25,7 @@ extern uint8_t ncores;
 extern uint64_t lapic_ptr;
 extern uint64_t ioapic_ptr;
 
-void apic_init()
+void lapic_init()
 {
 	pic_disable();
 
@@ -41,6 +41,7 @@ void apic_init()
 	lapic_out(LAPIC_SVR, 0x100 | 0xFF);
 }
 
+// For later SMP support
 void lapic_send_init(uint32_t apic_id)
 {
 	lapic_out(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
@@ -59,11 +60,6 @@ void lapic_send_startup(uint32_t apic_id, uint32_t vector)
 
 	while (lapic_in(LAPIC_ICRLO) & ICR_SEND_PENDING)
 		;
-}
-
-uint32_t lapic_get_id()
-{
-	return lapic_in(LAPIC_ID) >> 24;
 }
 
 uint32_t lapic_in(uint32_t reg)

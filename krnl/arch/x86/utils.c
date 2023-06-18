@@ -68,26 +68,6 @@ void io_wait(void)
 	outb(0x80, 0);
 }
 
-void mmio_outb(void *p, uint8_t data)
-{
-	*(volatile uint8_t *)(p) = data;
-}
-
-uint8_t mmio_inb(void *p)
-{
-	return *(volatile uint8_t *)(p);
-}
-
-void mmio_outc(void *p, uint16_t data)
-{
-	*(volatile uint16_t *)(p) = data;
-}
-
-uint16_t mmio_inc(void *p)
-{
-	return *(volatile uint16_t *)(p);
-}
-
 void mmio_outw(void *p, uint32_t data)
 {
 	*(volatile uint32_t *)(p) = data;
@@ -96,14 +76,4 @@ void mmio_outw(void *p, uint32_t data)
 uint32_t mmio_inw(void *p)
 {
 	return *(volatile uint32_t *)(p);
-}
-
-void mmio_outq(void *p, uint64_t data)
-{
-	*(volatile uint64_t *)(p) = data;
-}
-
-uint64_t mmio_inq(void *p)
-{
-	return *(volatile uint64_t *)(p);
 }

@@ -28,7 +28,7 @@ void irq_init(void)
 	pic_init(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8);
 
 	for (int i = 0; i < 16; i++) {
-		isr_register(PIC_REMAP_OFFSET + i, irq_handler);
+		isr_register(PIC_REMAP_OFFSET + i, &irq_handler);
 	}
 }
 

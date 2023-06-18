@@ -34,7 +34,7 @@
 #include <x86_64/cpu/gdt.h>
 
 #include <x86_64/dd/apic/pic.h>
-#include <x86_64/dd/apic/apic.h>
+#include <x86_64/dd/apic/lapic.h>
 #include <x86_64/dd/apic/ioapic.h>
 
 #include <x86_64/dd/serial/serial.h>

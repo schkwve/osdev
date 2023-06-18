@@ -20,6 +20,7 @@
 #include <arch.h>
 
 #include <debug/log.h>
+#include <stdint.h>
 
 extern madt_t *madt;
 
@@ -27,4 +28,28 @@ void acpi_init()
 {
 	void *rsdp = acpi_rsdp_init();
 	acpi_madt_init(rsdp);
+}
+
+uint32_t acpi_remap_irq(uint32_t irq)
+{
+	uint16_t *ptr = (uint16_t *)(madt + 1);
+	uint8_t *end = (uint8_t *)madt + madt->hdr.len;
+
+	while (ptr < end) {
+		apic_hdr_t *hdr = (apic_hdr_t *)ptr;
+		uint8_t type = hdr->type;
+		uint8_t len = hdr->len;
+
+		// Interrupt Override
+		if (type == 2) {
+			apic_iso_t *iso = (apic_iso_t *)ptr;
+
+			if (iso->src == irq) {
+				return iso->interrupt;
+			}
+		}
+		ptr += len;
+	}
+
+	return irq;
 }

@@ -22,6 +22,53 @@
 
 #include <stdint.h>
 
+extern uint8_t ncores;
+extern uint8_t lapic_ids[256];
+extern uint64_t lapic_ptr;
+
+void cpu_init_smp()
+{
+	uint8_t running_aps = 0;
+	uint8_t bspid = 0;
+	uint8_t bspdone = 0;
+
+	// get BSP's LAPIC ID
+	__asm__ volatile("mov $1, %%eax; cpuid; shrl $24, %%ebx;" : "=b"(bspid));
+
+	//memcpy((void *)0x8000, &ap_trampoline, 4096);
+
+	for (int i = 0; i < ncores; i++) {
+		if (lapic_ids[i] == bspid) continue;
+
+		// init IPI
+		*((uint32_t *)(lapic_ptr + 0x280)) = 0;
+		*((uint32_t *)(lapic_ptr + 0x310)) = (*((uint32_t *)(lapic_ptr + 0x310)) & 0x00FFFFFF) | (i << 24);
+		*((uint32_t *)(lapic_ptr + 0x300)) = (*((uint32_t*)(lapic_ptr + 0x300)) & 0xfff00000) | 0x00C500;
+		do {
+			__asm__ volatile("pause" ::: "memory");
+		} while (*((volatile uint32_t*)(lapic_ptr + 0x300)) & (1 << 12));
+		*((uint32_t*)(lapic_ptr + 0x310)) = (*((uint32_t*)(lapic_ptr + 0x310)) & 0x00ffffff) | (i << 24);
+		*((uint32_t*)(lapic_ptr + 0x300)) = (*((uint32_t*)(lapic_ptr + 0x300)) & 0xfff00000) | 0x008500;
+		do {
+			__asm__ volatile("pause" ::: "memory");
+		} while (*((uint32_t*)(lapic_ptr + 0x300)) & (1 << 12));
+		//mdelay(10);
+
+		// startup IPI
+		for (int j = 0; j < 2; j++) {
+			*((uint32_t *)(lapic_ptr + 0x280)) = 0;
+			*((uint32_t*)(lapic_ptr + 0x310)) = (*((uint32_t*)(lapic_ptr + 0x310)) & 0x00ffffff) | (i << 24);
+			*((uint32_t*)(lapic_ptr + 0x300)) = (*((uint32_t*)(lapic_ptr + 0x300)) & 0xfff0f800) | 0x000608;
+			//udelay(200);
+			do {
+				__asm__ volatile("pause" ::: "memory");
+			} while (*((uint32_t*)(lapic_ptr + 0x300)) & (1 << 12));
+		}
+	}
+
+	bspdone = 1;
+}
+
 void cpu_check()
 {
 	uint32_t eax, ebx, ecx, edx;

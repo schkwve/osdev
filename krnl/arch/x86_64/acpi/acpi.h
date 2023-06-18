@@ -20,6 +20,9 @@
 #ifndef __ACPI_H_
 #define __ACPI_H_
 
+#include <stdint.h>
+
 void acpi_init();
+uint32_t acpi_remap_irq(uint32_t irq);
 
 #endif // __ACPI_H_
