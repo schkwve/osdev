@@ -20,6 +20,17 @@
 #ifndef __IRQ_H_
 #define __IRQ_H_
 
+#define IRQ_PIT 0x00
+#define IRQ_KBD 0x01
+#define IRQ_COM2 0x03
+#define IRQ_COM1 0x04
+#define IRQ_FLOPPY 0x06
+#define IRQ_ATA0 0x0E
+#define IRQ_ATA1 0x0F
+
+#define INT_PIT 0x20
+#define INT_SPU 0xFF
+
 typedef void (*irq_handler_t)(cpu_regs_t *regs);
 
 void irq_init(void);

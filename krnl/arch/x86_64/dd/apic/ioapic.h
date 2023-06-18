@@ -17,36 +17,17 @@
  *
  */
 
-#ifndef __ARCH_H_
-#define __ARCH_H_
+#ifndef __IOAPIC_H_
+#define __IOAPIC_H_
 
-#ifdef x86_64
-#include <x86/utils.h>
+#include <stdint.h>
 
-#include <x86_64/acpi/acpi.h>
-#include <x86_64/acpi/rsdt.h>
-#include <x86_64/acpi/madt.h>
-#include <x86_64/acpi/sdt.h>
+#define IOREGSEL 0x00
+#define IOWIN 0x10
 
-#include <x86_64/boot/limine.h>
+void ioapic_init();
 
-#include <x86_64/cpu/cpu.h>
-#include <x86_64/cpu/gdt.h>
+uint32_t ioapic_in(uint8_t *base, uint8_t reg);
+void ioapic_out(uint8_t *base, uint8_t reg, uint32_t val);
 
-#include <x86_64/dd/apic/pic.h>
-#include <x86_64/dd/apic/apic.h>
-#include <x86_64/dd/apic/ioapic.h>
-
-#include <x86_64/dd/serial/serial.h>
-#include <x86_64/dd/pit/pit.h>
-
-#include <x86_64/int/idt.h>
-#include <x86_64/int/isr.h>
-#include <x86_64/int/irq.h>
-#else
-#error Unsupported architecture!
-#endif
-
-void arch_init();
-
-#endif // __ARCH_H_
+#endif // __IOAPIC_H_

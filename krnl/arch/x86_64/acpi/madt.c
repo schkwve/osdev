@@ -28,6 +28,8 @@ uint8_t ncores = 0;
 uint64_t lapic_ptr = 0;
 uint64_t ioapic_ptr = 0;
 
+madt_t *madt;
+
 void acpi_madt_init(void *rsdt_addr)
 {
 	rsdt_t *rsdt = (rsdt_t *)rsdt_addr;
@@ -36,27 +38,29 @@ void acpi_madt_init(void *rsdt_addr)
 	for (int i = 0; i < entries; i++) {
 		sdt_t *header = (sdt_t *)rsdt->ptr[i];
 		if (strncmp(header->sig, "APIC", 4) == 0) {
-			uint8_t *madt = (uint8_t *)header;
-			lapic_ptr = (uint64_t)((uint32_t)(madt + 0x24));
+			madt = (madt_t *)rsdt->ptr[i];
+			uint8_t *madt_hdr = (uint8_t *)header;
+			lapic_ptr = (uint64_t)((uint32_t)(madt_hdr + 0x24));
 
-			uint8_t *madt_len = madt + *((uint32_t *)(madt + 0x04));
-			for (madt += 44; madt < madt_len; madt += madt[1]) {
-				switch (madt[0]) {
+			uint8_t *madt_len = madt_hdr + *((uint32_t *)(madt_hdr + 0x04));
+			for (madt_hdr += 44; madt_hdr < madt_len; madt_hdr += madt_hdr[1]) {
+				switch (madt_hdr[0]) {
 				case 0: // LAPIC
-					if (madt[4] & 1) {
-						lapic_ids[ncores++] = madt[3];
+					if (madt_hdr[4] & 1) {
+						lapic_ids[ncores++] = madt_hdr[3];
 					}
 					break;
 				case 1: // IOAPIC
-					ioapic_ptr = (uint64_t) * ((uint32_t *)(madt + 0x04));
+					ioapic_ptr = (uint64_t) * ((uint32_t *)(madt_hdr + 0x04));
 					break;
 				case 5: // 64-bit LAPIC
-					lapic_ptr = *((uint64_t *)(madt + 0x04));
+					lapic_ptr = *((uint64_t *)(madt_hdr + 0x04));
 				}
 			}
 
-			klog("Found %d cores, IOAPIC %lx, LAPIC %lx, Processor IDs:",
-				 ncores, ioapic_ptr, lapic_ptr);
+			klog(
+				"Found %d cores, IOAPIC @ 0x%lx, LAPIC @ 0x%lx, Processor IDs:",
+				ncores, ioapic_ptr, lapic_ptr);
 			for (int i = 0; i < ncores; i++) {
 				klog(" %d", lapic_ids[i]);
 			}

@@ -17,36 +17,23 @@
  *
  */
 
-#ifndef __ARCH_H_
-#define __ARCH_H_
+#include <arch.h>
+#include <stdint.h>
 
-#ifdef x86_64
-#include <x86/utils.h>
+extern uint64_t ioapic_ptr;
 
-#include <x86_64/acpi/acpi.h>
-#include <x86_64/acpi/rsdt.h>
-#include <x86_64/acpi/madt.h>
-#include <x86_64/acpi/sdt.h>
+void ioapic_init()
+{
+}
 
-#include <x86_64/boot/limine.h>
+uint32_t ioapic_in(uint8_t *base, uint8_t reg)
+{
+	mmio_outw(base + IOREGSEL, reg);
+	return mmio_inw(base + IOWIN);
+}
 
-#include <x86_64/cpu/cpu.h>
-#include <x86_64/cpu/gdt.h>
-
-#include <x86_64/dd/apic/pic.h>
-#include <x86_64/dd/apic/apic.h>
-#include <x86_64/dd/apic/ioapic.h>
-
-#include <x86_64/dd/serial/serial.h>
-#include <x86_64/dd/pit/pit.h>
-
-#include <x86_64/int/idt.h>
-#include <x86_64/int/isr.h>
-#include <x86_64/int/irq.h>
-#else
-#error Unsupported architecture!
-#endif
-
-void arch_init();
-
-#endif // __ARCH_H_
+void ioapic_out(uint8_t *base, uint8_t reg, uint32_t val)
+{
+	mmio_outw(base + IOREGSEL, reg);
+	mmio_outw(base + IOWIN, val);
+}

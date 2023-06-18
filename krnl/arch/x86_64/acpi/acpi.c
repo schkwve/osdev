@@ -19,6 +19,10 @@
 
 #include <arch.h>
 
+#include <debug/log.h>
+
+extern madt_t *madt;
+
 void acpi_init()
 {
 	void *rsdp = acpi_rsdp_init();

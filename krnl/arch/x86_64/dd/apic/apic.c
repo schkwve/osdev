@@ -17,7 +17,61 @@
  *
  */
 
+#include <arch.h>
+#include <stdint.h>
+
+extern uint8_t lapic_ids[256];
+extern uint8_t ncores;
+extern uint64_t lapic_ptr;
+extern uint64_t ioapic_ptr;
+
 void apic_init()
 {
 	pic_disable();
+
+	// enable all interrupts by clearing task priority
+	lapic_out(LAPIC_TPR, 0);
+
+	// flat mode
+	lapic_out(LAPIC_DFR, 0xFFFFFFFF);
+	// logical ID 1
+	lapic_out(LAPIC_LDR, 0x01000000);
+
+	// spurious interrupt vector register
+	lapic_out(LAPIC_SVR, 0x100 | 0xFF);
+}
+
+void lapic_send_init(uint32_t apic_id)
+{
+	lapic_out(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
+	lapic_out(LAPIC_ICRLO, ICR_INIT | ICR_PHYSICAL | ICR_ASSERT | ICR_EDGE |
+							   ICR_NO_SHORTHAND);
+
+	while (lapic_in(LAPIC_ICRLO) & ICR_SEND_PENDING)
+		;
+}
+
+void lapic_send_startup(uint32_t apic_id, uint32_t vector)
+{
+	lapic_out(LAPIC_ICRHI, apic_id << ICR_DESTINATION_SHIFT);
+	lapic_out(LAPIC_ICRLO, vector | ICR_STARTUP | ICR_PHYSICAL | ICR_ASSERT |
+							   ICR_EDGE | ICR_NO_SHORTHAND);
+
+	while (lapic_in(LAPIC_ICRLO) & ICR_SEND_PENDING)
+		;
+}
+
+uint32_t lapic_get_id()
+{
+	return lapic_in(LAPIC_ID) >> 24;
+}
+
+uint32_t lapic_in(uint32_t reg)
+{
+	return mmio_inw(lapic_ptr + reg);
+}
+
+void lapic_out(uint32_t reg, uint32_t data)
+{
+	mmio_outw(lapic_ptr + reg, data);
 }

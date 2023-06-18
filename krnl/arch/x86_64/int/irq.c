@@ -30,8 +30,6 @@ void irq_init(void)
 	for (int i = 0; i < 16; i++) {
 		isr_register(PIC_REMAP_OFFSET + i, irq_handler);
 	}
-
-	sti();
 }
 
 void irq_register(int irq, irq_handler_t handler)

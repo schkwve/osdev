@@ -21,6 +21,8 @@
 
 #include <arch.h>
 
+extern uint64_t ioapic_ptr;
+
 void arch_init()
 {
 	serial_init();
@@ -28,9 +30,15 @@ void arch_init()
 	gdt_init();
 	idt_init();
 	irq_init();
-	pit_init();
 
 	acpi_init();
+	cpu_check();
+
+	apic_init();
+	ioapic_init();
+
+	pit_init();
+	sti();
 }
 
 #endif

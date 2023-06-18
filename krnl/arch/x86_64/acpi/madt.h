@@ -20,7 +20,14 @@
 #ifndef __MADT_H_
 #define __MADT_H_
 
+#include <arch.h>
 #include <stdint.h>
+
+typedef struct {
+	sdt_t hdr;
+	uint32_t lapic_addr;
+	uint32_t flags;
+} madt_t;
 
 void acpi_madt_init(void *rsdt_addr);
 
