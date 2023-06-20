@@ -2,6 +2,8 @@
 
 A project without name... (yet!)
 
+## THIS PROJECT IS CURRENTLY BEING REWRITTEN IN THE `rewrite` BRANCH
+
 ## Building & Running
 
 After cloning this repo with all submodules, compile Limine: `make -C ex/limine`
