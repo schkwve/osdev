@@ -23,7 +23,7 @@
 #include <stdint.h>
 
 extern int vectors[256];
-extern uint64_t isr_tbl[];
+extern void *isr_tbl[];
 
 isr_handler_t isr_handlers[256];
 
