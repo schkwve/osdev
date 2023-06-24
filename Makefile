@@ -17,8 +17,6 @@
 #
 #
 
-ARCH := x86_64
-
 AS := nasm
 CC := x86_64-elf-gcc
 LD := x86_64-elf-ld
@@ -42,9 +40,7 @@ CFLAGS :=	-std=c99 \
 			-mno-red-zone \
 			-mcmodel=kernel \
 			-MMD \
-			-D$(ARCH) \
 			-Ikrnl/ \
-			-Ikrnl/arch \
 			-Icorelib
 
 LDFLAGS :=	-nostdlib \
@@ -52,7 +48,7 @@ LDFLAGS :=	-nostdlib \
 			-no-pie \
 			-melf_x86_64 \
 			-zmax-page-size=0x1000 \
-			-Tkrnl/arch/$(ARCH)/linker.ld
+			-Tkrnl/linker.ld
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
@@ -68,7 +64,6 @@ AS_FILES=$(shell find krnl corelib -name "*.asm" -type f)
 INCFILES=$(C_FILES:.c=.d)
 OBJ=$(C_FILES:.c=.o) $(AS_FILES:.asm=.o)
 
-
 .PHONY: all
 all: clean kernel iso # Build everything
 
@@ -80,11 +75,11 @@ kernel: $(KERNEL)
 
 .PHONY: run
 run: $(ISO) # Run OSDev
-	@qemu-system-x86_64 -serial stdio -smp 4 -no-reboot -M smm=off -m 512M -cdrom $(ISO) -display none
+	@qemu-system-x86_64 -serial stdio -smp 4 -no-reboot -M smm=off -m 512M -cdrom $(ISO)
 
 .PHONY: format
 format: # Format the code as described in .clang-format
-	find krnl -type f -name "*.c" -o -name "*.h" | xargs clang-format -i
+	find krnl corelib -type f -name "*.c" -o -name "*.h" | xargs clang-format -i
 
 .PHONY: help
 help: # Print help

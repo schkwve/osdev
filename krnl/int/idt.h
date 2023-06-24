@@ -17,20 +17,31 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __IDT_H_
+#define __IDT_H_
 
-#include "printf.h"
+#include <stdint.h>
 
-char klog_buf[4096];
+#define INT_GATE 0x8E
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
+typedef struct {
+	uint16_t base_lo;
+	uint16_t cs;
+	uint8_t ist;
+	uint8_t flags;
+	uint16_t base_mid;
+	uint32_t base_hi;
+	uint32_t reserved;
+} __attribute__((packed)) idt_desc_t;
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+typedef struct {
+	uint16_t size;
+	uint64_t offset;
+} __attribute__((packed)) idtr_t;
 
-	va_end(ptr);
-}
+void idt_init(void);
+void idt_set_desc(uint8_t index, uint8_t flags);
+
+extern void idt_load(idtr_t *idtr);
+
+#endif // __IDT_H_

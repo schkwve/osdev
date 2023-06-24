@@ -17,20 +17,45 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+OUTPUT_FORMAT(elf64-x86-64)
+OUTPUT_ARCH(i386:x86-64)
 
-#include "printf.h"
+ENTRY(_start)
 
-char klog_buf[4096];
-
-void klog(char *fmt, ...)
+PHDRS
 {
-	va_list ptr;
-	va_start(ptr, fmt);
+    text    PT_LOAD    FLAGS((1 << 0) | (1 << 2)) ; /* Execute + Read */
+    rodata  PT_LOAD    FLAGS((1 << 2)) ;            /* Read only */
+    data    PT_LOAD    FLAGS((1 << 1) | (1 << 2)) ; /* Write + Read */
+}
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+SECTIONS
+{
+    . = 0xffffffff80000000;
 
-	va_end(ptr);
+    .text : {
+        *(.text .text.*)
+    } :text
+
+    . += CONSTANT(MAXPAGESIZE);
+
+    .rodata : {
+        *(.rodata .rodata.*)
+    } :rodata
+
+    . += CONSTANT(MAXPAGESIZE);
+
+    .data : {
+        *(.data .data.*)
+    } :data
+
+    .bss : {
+        *(COMMON)
+        *(.bss .bss.*)
+    } :data
+
+    /DISCARD/ : {
+        *(.eh_frame)
+        *(.note .note.*)
+    }
 }

@@ -17,20 +17,14 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#include <acpi/acpi.h>
+#include <acpi/rsdt.h>
+#include <acpi/madt.h>
 
-#include "printf.h"
+extern madt_t *madt;
 
-char klog_buf[4096];
-
-void klog(char *fmt, ...)
+void acpi_init()
 {
-	va_list ptr;
-	va_start(ptr, fmt);
-
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
-
-	va_end(ptr);
+	uint64_t rsdp = acpi_rsdp_init();
+	acpi_madt_init((void *)rsdp);
 }

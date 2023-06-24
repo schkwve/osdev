@@ -17,20 +17,33 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#include <dd/apic/pic.h>
+#include <int/irq.h>
 
-#include "printf.h"
+#include <utils/utils.h>
 
-char klog_buf[4096];
+#include "kbd.h"
 
-void klog(char *fmt, ...)
+void ps2_kbd_init()
 {
-	va_list ptr;
-	va_start(ptr, fmt);
+	pic_unmask(1);
+	irq_register(1, ps2_kbd_handler);
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+	while (inb(PS2_KBD_CMD) & 0x1) {
+		inb(PS2_KBD_DATA);
+	}
 
-	va_end(ptr);
+	ps2_kbd_send_cmd(0xF4);
+}
+
+void ps2_kbd_send_cmd(uint8_t cmd)
+{
+	while (inb(PS2_KBD_CMD) & 0x2) {
+		outb(PS2_KBD_DATA, cmd);
+	}
+}
+
+void ps2_kbd_handler(cpu_regs_t *regs)
+{
+	uint8_t scancode = inb(PS2_KBD_DATA);
 }

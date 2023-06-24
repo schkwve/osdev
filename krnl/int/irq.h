@@ -17,20 +17,14 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __IRQ_H_
+#define __IRQ_H_
 
-#include "printf.h"
+#include <cpu/cpu.h>
 
-char klog_buf[4096];
+typedef void (*irq_handler_t)(cpu_regs_t *regs);
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
+void irq_register(int irq, irq_handler_t handler);
+void irq_deregister(int irq);
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
-
-	va_end(ptr);
-}
+#endif // __IRQ_H_

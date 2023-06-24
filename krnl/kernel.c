@@ -17,13 +17,37 @@
  *
  */
 
-#include <arch.h>
+#include <acpi/acpi.h>
+
+#include <cpu/cpu.h>
+#include <cpu/gdt.h>
+
+#include <int/idt.h>
+#include <int/isr.h>
+#include <int/irq.h>
+
+#include <dd/apic/pic.h>
+#include <dd/pit/pit.h>
+#include <dd/ps2/kbd.h>
+#include <dd/serial/serial.h>
 
 #include <debug/log.h>
 
 void _start(void)
 {
-	arch_init();
+	serial_init();
+
+	gdt_init();
+	idt_init();
+
+	acpi_init();
+	cpu_check();
+
+	pit_init();
+
+	ps2_kbd_init();
+
+	klog("Init done\n");
 
 	for (;;) {
 	}

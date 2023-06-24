@@ -17,20 +17,21 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __SDT_H_
+#define __SDT_H_
 
-#include "printf.h"
+#include <stdint.h>
 
-char klog_buf[4096];
+typedef struct {
+	char sig[4];
+	uint32_t len;
+	uint8_t rev;
+	uint8_t cs;
+	char oem_id[6];
+	char oem_tbl_id[8];
+	uint32_t oem_rev;
+	uint32_t creator_id;
+	uint32_t creator_rev;
+} __attribute__((packed)) sdt_t;
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
-
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
-
-	va_end(ptr);
-}
+#endif // __SDT_H_

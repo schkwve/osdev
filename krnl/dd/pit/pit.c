@@ -17,20 +17,39 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#include <dd/pit/pit.h>
+#include <int/irq.h>
+#include <utils/utils.h>
 
-#include "printf.h"
+#include <stdint.h>
 
-char klog_buf[4096];
+uint8_t pit_ticks;
 
-void klog(char *fmt, ...)
+void pit_init()
 {
-	va_list ptr;
-	va_start(ptr, fmt);
+	uint16_t divisor = 1193182 / 1000;
+	outb(PIT_CMD, PIT_BINARY | PIT_MODE3 | PIT_RW_BOTH | PIT_COUNTER0);
+	outb(PIT_COUNTER0, divisor);
+	outb(PIT_COUNTER0, divisor >> 8);
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+	irq_register(0, pit_handler);
+}
 
-	va_end(ptr);
+void pit_handler()
+{
+	pit_ticks += 1;
+}
+
+uint8_t pit_get_ticks()
+{
+	return pit_ticks;
+}
+
+void pit_wait(uint8_t ms)
+{
+	uint8_t now = pit_get_ticks();
+	++ms;
+
+	while (pit_get_ticks() - now < ms)
+		;
 }

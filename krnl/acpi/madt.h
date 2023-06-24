@@ -17,20 +17,19 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __MADT_H_
+#define __MADT_H_
 
-#include "printf.h"
+#include <acpi/sdt.h>
 
-char klog_buf[4096];
+#include <stdint.h>
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
+typedef struct {
+	sdt_t hdr;
+	uint32_t lapic_addr;
+	uint32_t flags;
+} madt_t;
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+void acpi_madt_init(void *rsdt_addr);
 
-	va_end(ptr);
-}
+#endif // __MADT_H_

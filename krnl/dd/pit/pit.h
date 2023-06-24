@@ -17,20 +17,21 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __PIT_H_
+#define __PIT_H_
 
-#include "printf.h"
+#include <stdint.h>
 
-char klog_buf[4096];
+#define PIT_COUNTER0 0x40
+#define PIT_CMD 0x43
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
+#define PIT_BINARY 0x00
+#define PIT_MODE3 0x04
+#define PIT_RW_BOTH 0x30
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+void pit_init();
+void pit_handler();
+uint8_t pit_get_ticks();
+void pit_wait(uint8_t ms);
 
-	va_end(ptr);
-}
+#endif // __PIT_H_

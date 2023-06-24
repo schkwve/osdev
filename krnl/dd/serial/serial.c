@@ -17,20 +17,47 @@
  *
  */
 
-#include <debug/log.h>
 #include <dd/serial/serial.h>
+#include <utils/utils.h>
 
-#include "printf.h"
-
-char klog_buf[4096];
-
-void klog(char *fmt, ...)
+void serial_init()
 {
-	va_list ptr;
-	va_start(ptr, fmt);
+	outb(COM1 + 1, 0x00);
+	outb(COM1 + 3, 0x80);
+	outb(COM1 + 0, 0x03); // Set divisor to 38400 baud (low byte)
+	outb(COM1 + 1, 0x00); // (high byte)
+	outb(COM1 + 3, 0x03);
+	outb(COM1 + 2, 0xC7);
+	outb(COM1 + 4, 0x0B);
+}
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+int serial_received()
+{
+	return inb(COM1 + 5) & 1;
+}
 
-	va_end(ptr);
+char serial_read()
+{
+	while (serial_received() == 0)
+		;
+	return inb(COM1);
+}
+
+int serial_transmit_empty()
+{
+	return inb(COM1 + 5) & 0x20;
+}
+
+void serial_putc(char c)
+{
+	while (serial_transmit_empty() == 0)
+		;
+	outb(COM1, c);
+}
+
+void serial_write(char *str)
+{
+	while (*str) {
+		serial_putc(*str++);
+	}
 }

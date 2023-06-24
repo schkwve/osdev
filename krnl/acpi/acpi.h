@@ -17,20 +17,11 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __ACPI_H_
+#define __ACPI_H_
 
-#include "printf.h"
+#include <stdint.h>
 
-char klog_buf[4096];
+void acpi_init();
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
-
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
-
-	va_end(ptr);
-}
+#endif // __ACPI_H_

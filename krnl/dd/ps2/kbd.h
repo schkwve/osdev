@@ -17,20 +17,19 @@
  *
  */
 
-#include <debug/log.h>
-#include <dd/serial/serial.h>
+#ifndef __PS2_KBD_H_
+#define __PS2_KBD_H_
 
-#include "printf.h"
+#include <cpu/cpu.h>
 
-char klog_buf[4096];
+#include <stdint.h>
 
-void klog(char *fmt, ...)
-{
-	va_list ptr;
-	va_start(ptr, fmt);
+#define PS2_KBD_CMD 0x64
+#define PS2_KBD_DATA 0x60
 
-	vsnprintf((char *)&klog_buf, -1, fmt, ptr);
-	serial_write(klog_buf);
+void ps2_kbd_init(void);
+void ps2_kbd_send_cmd(uint8_t cmd);
 
-	va_end(ptr);
-}
+void ps2_kbd_handler(cpu_regs_t *regs);
+
+#endif // __PS2_KBD_H_
