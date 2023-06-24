@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/krnl",
+                "${workspaceFolder}/krnl/arch"
+            ]
+        }
+    ],
+    "version": 4
+}
