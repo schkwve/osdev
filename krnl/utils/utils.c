@@ -17,6 +17,8 @@
  *
  */
 
+#include <mm/vmm.h>
+
 #include <utils/utils.h>
 #include <stdint.h>
 
@@ -28,14 +30,19 @@ void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx, uint32_t *ecx,
 					 : "0"(reg));
 }
 
-void rdmsr(uint32_t msr, uint32_t *low, uint32_t *high)
+uint64_t rdmsr(uint32_t msr)
 {
-	__asm__ volatile("rdmsr" : "=a"(*low), "=d"(*high) : "c"(msr));
+	uint64_t rax;
+	uint64_t rdx;
+	__asm__ volatile("rdmsr" : "=a"(rax), "=d"(rdx) : "c"(msr) : "memory");
+	return (rdx << 32) | rax;
 }
 
-void wrmsr(uint32_t msr, uint32_t low, uint32_t high)
+void wrmsr(uint32_t msr, uint64_t val)
 {
-	__asm__ volatile("wrmsr" ::"a"(low), "d"(high), "c"(msr));
+	uint64_t rax = (uint32_t)val;
+	uint64_t rdx = val >> 32;
+	__asm__ volatile("wrmsr" ::"a"(rax), "d"(rdx), "c"(msr));
 }
 
 void outb(uint16_t port, uint8_t str)
@@ -50,6 +57,34 @@ uint8_t inb(uint16_t port)
 	return ret;
 }
 
+uint64_t read_cr0(void)
+{
+	uint64_t cr0;
+	__asm__ volatile("mov %%cr0, %0" : "=rax"(cr0));
+	return cr0;
+}
+
+uint64_t read_cr2(void)
+{
+	uint64_t cr2;
+	__asm__ volatile("mov %%cr2, %0" : "=rax"(cr2));
+	return cr2;
+}
+
+uint64_t read_cr3(void)
+{
+	uint64_t cr3;
+	__asm__ volatile("mov %%cr0, %0" : "=rax"(cr3));
+	return cr3;
+}
+
+uint64_t read_cr4(void)
+{
+	uint64_t cr4;
+	__asm__ volatile("mov %%cr0, %0" : "=rax"(cr4));
+	return cr4;
+}
+
 void sti(void)
 {
 	__asm__ volatile("sti");
@@ -61,6 +96,11 @@ void cli(void)
 }
 
 ///
+
+void enable_pat(void)
+{
+	wrmsr(0x277, PAT_UNCACHEABLE | (PAT_WRITE_COMBINING << 8) | (PAT_WRITE_THRU << 32) | (PAT_WRITE_PROT << 40) | (PAT_WRITE_BACK << 48) | (PAT_UNCACHED << 56));
+}
 
 void io_wait(void)
 {
