@@ -35,7 +35,7 @@ madt_t *madt;
 
 void acpi_madt_init(void *rsdt_addr)
 {
-	xsdt_t *rsdt = (xsdt_t *)rsdt_addr;
+	rsdt_t *rsdt = (rsdt_t *)rsdt_addr;
 	int entries = (rsdt->header.len - sizeof(rsdt->header)) / 4;
 
 	for (int i = 0; i < entries; i++) {

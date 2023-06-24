@@ -31,7 +31,7 @@ static volatile struct limine_rsdp_request rsdp_request = {
 	.revision = 0,
 };
 
-uint64_t acpi_rsdp_init()
+void *acpi_rsdp_init()
 {
 	uint64_t *rsdp_addr = rsdp_request.response->address;
 
@@ -45,16 +45,16 @@ uint64_t acpi_rsdp_init()
 	if ((checksum & 0xFF) != 0) {
 		klog("Invalid RSDP Checksum!\n");
 		//panic("Invalid RSDP Checksum!\n");
-		return 0;
+		return NULL;
 	}
 
 	rsdp_t *rsdp = (rsdp_t *)rsdp_addr;
 	if (rsdp->rev >= 2) {
 		// Not tested, but should work
 		klog("ACPI v2.0 or above\n");
-		return (uint64_t)rsdp->xsdt_addr;
+		return rsdp->xsdt_addr;
 	} else {
 		klog("ACPI v1.0\n");
-		return (uint64_t)rsdp->rsdt_addr;
+		return rsdp->rsdt_addr;
 	}
 }

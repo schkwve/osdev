@@ -25,6 +25,6 @@ extern madt_t *madt;
 
 void acpi_init()
 {
-	uint64_t rsdp = acpi_rsdp_init();
-	acpi_madt_init((void *)rsdp);
+	void *rsdp = acpi_rsdp_init();
+	acpi_madt_init(rsdp);
 }

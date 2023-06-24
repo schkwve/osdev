@@ -48,6 +48,6 @@ typedef struct {
 	uint64_t ptr[];
 } __attribute__((packed)) xsdt_t;
 
-uint64_t acpi_rsdp_init();
+void *acpi_rsdp_init();
 
 #endif // __RSDT_H_

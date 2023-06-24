@@ -46,4 +46,5 @@ void ps2_kbd_send_cmd(uint8_t cmd)
 void ps2_kbd_handler(cpu_regs_t *regs)
 {
 	uint8_t scancode = inb(PS2_KBD_DATA);
+	klog("0x%x ", scancode);
 }
