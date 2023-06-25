@@ -4,3 +4,5 @@ krnl.sys
 osdev.iso
 
 ex/
+
+.vscode/
