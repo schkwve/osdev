@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-void cpu_check()
+void cpu_check(void)
 {
 	uint32_t eax, ebx, ecx, edx;
 

@@ -19,12 +19,16 @@
 
 #include <acpi/acpi.h>
 
+#include <boot/limine.h>
+
 #include <cpu/cpu.h>
 #include <cpu/gdt.h>
 
 #include <int/idt.h>
 #include <int/isr.h>
 #include <int/irq.h>
+
+#include <mm/phys.h>
 
 #include <dd/apic/pic.h>
 #include <dd/pit/pit.h>
@@ -33,6 +37,16 @@
 
 #include <debug/log.h>
 
+static volatile struct limine_memmap_request memmap_request = {
+	.id = LIMINE_MEMMAP_REQUEST,
+	.revision = 0,
+};
+
+static volatile struct limine_rsdp_request rsdp_request = {
+	.id = LIMINE_RSDP_REQUEST,
+	.revision = 0,
+};
+
 void _start(void)
 {
 	serial_init();
@@ -40,7 +54,7 @@ void _start(void)
 	gdt_init();
 	idt_init();
 
-	acpi_init();
+	acpi_init(rsdp_request.response);
 	cpu_check();
 
 	pit_init();

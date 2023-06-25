@@ -20,7 +20,10 @@
 #ifndef __CPU_H_
 #define __CPU_H_
 
+#include <cpu/gdt.h>
+
 #include <stdint.h>
+#include <stdbool.h>
 
 #define ECX_SSE3 (1 << 0) // Streaming SIMD Extensions 3
 #define ECX_PCLMULQDQ (1 << 1) // PCLMULQDQ Instruction
@@ -88,6 +91,9 @@
 #define EDX_RDTSCP (1 << 27) // RDTSCP and IA32_TSC_AUX
 #define EDX_64_BIT (1 << 29) // 64-bit Architecture
 
+#define MSR_GS_BASE 0xC0000101
+#define MSR_GS_KERNEL_BASE 0xC0000102
+
 typedef struct {
 	uint64_t r15;
 	uint64_t r14;
@@ -115,8 +121,9 @@ typedef struct {
 	uint64_t ss;
 } cpu_regs_t;
 
-extern void ap_trampoline(void);
+void cpu_check(void);
 
-void cpu_check();
+extern void write_msr(uint32_t msr, uint64_t val);
+extern uint64_t read_msr(uint32_t msr);
 
 #endif // __CPU_H_

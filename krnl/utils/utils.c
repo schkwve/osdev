@@ -17,8 +17,6 @@
  *
  */
 
-#include <mm/vmm.h>
-
 #include <utils/utils.h>
 #include <stdint.h>
 
@@ -28,6 +26,11 @@ void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx, uint32_t *ecx,
 	__asm__ volatile("cpuid"
 					 : "=a"(*eax), "=b"(*ebx), "=c"(*ecx), "=d"(*edx)
 					 : "0"(reg));
+}
+
+void invlpg(uint64_t addr)
+{
+	__asm__ volatile("invlpg (%0)" ::"r"(addr) : "memory");
 }
 
 uint64_t rdmsr(uint32_t msr)
@@ -85,6 +88,26 @@ uint64_t read_cr4(void)
 	return cr4;
 }
 
+void write_cr0(uint64_t val)
+{
+	__asm__ volatile("mov %0, %%cr0" ::"r"(val));
+}
+
+void write_cr2(uint64_t val)
+{
+	__asm__ volatile("mov %0, %%cr2" ::"r"(val));
+}
+
+void write_cr3(uint64_t val)
+{
+	__asm__ volatile("mov %0, %%cr3" ::"r"(val));
+}
+
+void write_cr4(uint64_t val)
+{
+	__asm__ volatile("mov %0, %%cr4" ::"r"(val));
+}
+
 void sti(void)
 {
 	__asm__ volatile("sti");
@@ -96,11 +119,6 @@ void cli(void)
 }
 
 ///
-
-void enable_pat(void)
-{
-	wrmsr(0x277, PAT_UNCACHEABLE | (PAT_WRITE_COMBINING << 8) | (PAT_WRITE_THRU << 32) | (PAT_WRITE_PROT << 40) | (PAT_WRITE_BACK << 48) | (PAT_UNCACHED << 56));
-}
 
 void io_wait(void)
 {

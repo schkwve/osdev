@@ -17,33 +17,4 @@
  *
  */
 
-#include <dd/apic/pic.h>
-#include <int/irq.h>
-
-#include <utils/utils.h>
-
-#include "kbd.h"
-
-void ps2_kbd_init()
-{
-	pic_unmask(1);
-	irq_register(1, ps2_kbd_handler);
-
-	while (inb(PS2_KBD_CMD) & 0x1) {
-		inb(PS2_KBD_DATA);
-	}
-
-	ps2_kbd_send_cmd(0xF4);
-}
-
-void ps2_kbd_send_cmd(uint8_t cmd)
-{
-	while (inb(PS2_KBD_CMD) & 0x2) {
-		outb(PS2_KBD_DATA, cmd);
-	}
-}
-
-void ps2_kbd_handler(cpu_regs_t *regs)
-{
-	uint8_t scancode = inb(PS2_KBD_DATA);
-}
+#include <mm/phys.h>

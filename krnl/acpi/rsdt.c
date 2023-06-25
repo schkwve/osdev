@@ -18,7 +18,6 @@
  */
 
 #include <boot/limine.h>
-
 #include <acpi/rsdt.h>
 
 #include <debug/log.h>
@@ -26,14 +25,9 @@
 #include <stdint.h>
 #include <string.h>
 
-static volatile struct limine_rsdp_request rsdp_request = {
-	.id = LIMINE_RSDP_REQUEST,
-	.revision = 0,
-};
-
-void *acpi_rsdp_init()
+void *acpi_rsdp_init(struct limine_rsdp_response *response)
 {
-	uint64_t *rsdp_addr = rsdp_request.response->address;
+	uint64_t *rsdp_addr = response->address;
 
 	// Validate RSDP
 	uint8_t checksum = 0;

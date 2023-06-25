@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 
+#define GDT_ENTRIES 10
+
 typedef struct {
 	uint16_t limit;
 	uint16_t base_lo;
