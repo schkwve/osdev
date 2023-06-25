@@ -57,6 +57,8 @@ void _start(void)
 	acpi_init(rsdp_request.response);
 	cpu_check();
 
+	pmm_init(memmap_request.response);
+
 	pit_init();
 
 	ps2_kbd_init();

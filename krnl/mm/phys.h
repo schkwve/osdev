@@ -20,4 +20,16 @@
 #ifndef __PHYS_H_
 #define __PHYS_H_
 
+#include <stdint.h>
+
+#define PAGE_SIZE 0x1000
+
+typedef struct {
+	uint64_t total_mem;
+	uint64_t used_mem;
+	uint64_t free_mem;
+} kmem_info_t;
+
+void pmm_init(struct limine_memmap_response *mmap);
+
 #endif // __PHYS_H_
