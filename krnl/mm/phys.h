@@ -24,11 +24,11 @@
 
 #define PAGE_SIZE 0x1000
 
-#define LVL5_PAGING_HIGHER_HALF	0xFF00000000000000UL
-#define LVL4_PAGING_HIGHER_HALF	0xFFFF800000000000UL
+#define LVL5_PAGING_HIGHER_HALF 0xFF00000000000000UL
+#define LVL4_PAGING_HIGHER_HALF 0xFFFF800000000000UL
 
-#define ALIGN_DOWN(addr, align)	    ((addr) & ~((align)-1))
-#define ALIGN_UP(addr, align)	    (((addr) + (align)-1) & ~((align)-1))
+#define ALIGN_DOWN(addr, align) ((addr) & ~((align)-1))
+#define ALIGN_UP(addr, align) (((addr) + (align)-1) & ~((align)-1))
 
 typedef struct {
 	uint64_t total_mem;

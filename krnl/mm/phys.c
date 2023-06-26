@@ -51,21 +51,23 @@ void pmm_init(struct limine_memmap_response *mmap)
 	for (uint64_t i = 0; i < mmap->entry_count; i++) {
 		struct limine_memmap_entry *entry = mmap->entries[i];
 
-		klog("Entry %i  | Base: 0x%.16llx | Length: %llu (0x%llx) | Type: %d\n", i, entry->base, entry->length, entry->length, entry->type);
-		
+		klog("Entry %i  | Base: 0x%.16llx | Length: %llu (0x%llx) | Type: %d\n",
+			 i, entry->base, entry->length, entry->length, entry->type);
+
 		size_t top = entry->base + entry->length;
-        if (top > highest_page)
-            highest_page = top;
-		
+		if (top > highest_page)
+			highest_page = top;
+
 		if (entry->type != LIMINE_MEMMAP_USABLE)
 			continue;
-		
+
 		mem_info.total_mem += entry->length;
 	}
 
 	klog("Total Memory: %llu MB\n", (mem_info.total_mem / 1024 / 1024));
 
-	bitmap.size = ALIGN_UP(ALIGN_DOWN(highest_page, PAGE_SIZE) / PAGE_SIZE / 8, PAGE_SIZE);
+	bitmap.size = ALIGN_UP(ALIGN_DOWN(highest_page, PAGE_SIZE) / PAGE_SIZE / 8,
+						   PAGE_SIZE);
 
 	// Look for big enough memory to put the bitmap in
 	for (uint64_t i = 0; i < mmap->entry_count; i++) {
@@ -73,7 +75,7 @@ void pmm_init(struct limine_memmap_response *mmap)
 
 		if (entry->type != LIMINE_MEMMAP_USABLE)
 			continue;
-		
+
 		if (entry->length > bitmap.size) {
 			bitmap.bitmap = (uint64_t *)(phys_to_higher_half(entry->base));
 			entry->base += bitmap.size;
