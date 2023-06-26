@@ -24,11 +24,26 @@
 
 #define PAGE_SIZE 0x1000
 
+#define LVL5_PAGING_HIGHER_HALF	0xFF00000000000000UL
+#define LVL4_PAGING_HIGHER_HALF	0xFFFF800000000000UL
+
+#define ALIGN_DOWN(addr, align)	    ((addr) & ~((align)-1))
+#define ALIGN_UP(addr, align)	    (((addr) + (align)-1) & ~((align)-1))
+
 typedef struct {
 	uint64_t total_mem;
 	uint64_t used_mem;
 	uint64_t free_mem;
 } kmem_info_t;
+
+typedef struct {
+	uint64_t *bitmap;
+	size_t size;
+} bitmap_t;
+
+static inline uintptr_t phys_to_higher_half(uintptr_t addr);
+
+void bitmap_set(uint64_t bit);
 
 void pmm_init(struct limine_memmap_response *mmap);
 
