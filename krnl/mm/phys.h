@@ -33,7 +33,6 @@
 typedef struct {
 	uint64_t total_mem;
 	uint64_t used_mem;
-	uint64_t free_mem;
 } kmem_info_t;
 
 typedef struct {
@@ -41,10 +40,16 @@ typedef struct {
 	size_t size;
 } bitmap_t;
 
-static inline uintptr_t phys_to_higher_half(uintptr_t addr);
+uintptr_t phys_to_higher_half(uintptr_t addr);
+uintptr_t higher_half_to_phys(uintptr_t addr);
 
-void bitmap_set(uint64_t bit);
+void bitmap_set(int bit);
+void bitmap_clear(int bit);
+uint8_t bitmap_get(int bit);
 
-void pmm_init(struct limine_memmap_response *mmap);
+void phys_mm_init(struct limine_memmap_response *mmap);
+
+void *phys_mm_alloc(size_t pages);
+void phys_mm_free(void *ptr, size_t pages);
 
 #endif // __PHYS_H_
