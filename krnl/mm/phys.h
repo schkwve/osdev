@@ -20,6 +20,8 @@
 #ifndef __PHYS_H_
 #define __PHYS_H_
 
+#include <boot/limine.h>
+
 #include <stdint.h>
 
 #define PAGE_SIZE 0x1000

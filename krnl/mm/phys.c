@@ -21,6 +21,7 @@
 #include <mm/phys.h>
 
 #include <debug/log.h>
+#include <utils/utils.h>
 
 #include <stdint.h>
 #include <string.h>
