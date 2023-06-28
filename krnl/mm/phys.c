@@ -89,7 +89,8 @@ void phys_init(struct limine_memmap_response *map)
 		}
 	}
 
-	uint64_t bitmap_size = mem_info.phys_limit / (PAGE_SIZE * BMP_PAGES_PER_BYTE);
+	uint64_t bitmap_size =
+		mem_info.phys_limit / (PAGE_SIZE * BMP_PAGES_PER_BYTE);
 	bool bitmap_place_found = false;
 	for (size_t i = 0; i < map->entry_count; i++) {
 		struct limine_memmap_entry *entry = map->entries[i];
@@ -97,7 +98,8 @@ void phys_init(struct limine_memmap_response *map)
 		if (entry->base + entry->length <= 0x100000)
 			continue;
 
-		if (entry->length >= bitmap_size && entry->type == LIMINE_MEMMAP_USABLE) {
+		if (entry->length >= bitmap_size &&
+			entry->type == LIMINE_MEMMAP_USABLE) {
 			if (!bitmap_place_found)
 				mem_info.bitmap = (uint8_t *)PHYS_TO_VIRT(entry->base);
 			bitmap_place_found = true;
@@ -152,6 +154,6 @@ void phys_dump_usage(void)
 		 "  Total: %8d KB (%4d MB)\n"
 		 "  Free : %8d KB (%4d MB)\n"
 		 "  Used : %8d KB (%4d MB)\n",
-		 total / 1024, total / (1024 * 1024), free / 1024, free / (1024 * 1024), used / 1024,
-		 used / (1024 * 1024));
+		 total / 1024, total / (1024 * 1024), free / 1024, free / (1024 * 1024),
+		 used / 1024, used / (1024 * 1024));
 }

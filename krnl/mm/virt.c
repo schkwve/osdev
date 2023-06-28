@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-static addrspace_t kaddrspace = {0};
+static addrspace_t kaddrspace = { 0 };
 vec_new_static(mem_map_t, mmap_list);
 
 extern mem_info_t kmem_info;
@@ -47,17 +47,17 @@ void virt_init(struct limine_memmap_response *mmap,
 	for (size_t i = 0; i < mmap->entry_count; i++) {
 		struct limine_memmap_entry *entry = mmap->entries[i];
 
-        switch (entry->type) {
-        case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
-            virt_map(NULL, entry->base, entry->base, NUM_PAGES(entry->length),
-				 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
-					 VIRT_FLAGS_USERMODE,
-				 false);
-		    klog("Mapped bootloader reclaimable 0x%9x to 0x%x (len: %d)\n",
-		    	 entry->base, entry->base, entry->length);
-            break;
-        case LIMINE_MEMMAP_FRAMEBUFFER:
-            virt_map(NULL, PHYS_TO_VIRT(entry->base), entry->base,
+		switch (entry->type) {
+		case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
+			virt_map(NULL, entry->base, entry->base, NUM_PAGES(entry->length),
+					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
+						 VIRT_FLAGS_USERMODE,
+					 false);
+			klog("Mapped bootloader reclaimable 0x%9x to 0x%x (len: %d)\n",
+				 entry->base, entry->base, entry->length);
+			break;
+		case LIMINE_MEMMAP_FRAMEBUFFER:
+			virt_map(NULL, PHYS_TO_VIRT(entry->base), entry->base,
 					 NUM_PAGES(entry->length),
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
 						 VIRT_FLAGS_USERMODE,
@@ -70,23 +70,23 @@ void virt_init(struct limine_memmap_response *mmap,
 					 false);
 			klog("Mapped framebuffer 0x%9x to 0x%x (len: %d)\n", entry->base,
 				 entry->base, entry->length);
-            break;
-        case LIMINE_MEMMAP_KERNEL_AND_MODULES:
-            uint64_t vaddr =
+			break;
+		case LIMINE_MEMMAP_KERNEL_AND_MODULES:
+			uint64_t vaddr =
 				kernel->virtual_base + entry->base - kernel->physical_base;
 			virt_map(NULL, vaddr, entry->base, NUM_PAGES(entry->length),
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAGS_USERMODE, true);
 			klog("Mapped kernel 0x%9x to 0x%x (len: %d)\n", entry->base, vaddr,
 				 entry->length);
-            break;
-        default:
-            virt_map(NULL, PHYS_TO_VIRT(entry->base), entry->base,
+			break;
+		default:
+			virt_map(NULL, PHYS_TO_VIRT(entry->base), entry->base,
 					 NUM_PAGES(entry->length),
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAGS_USERMODE, true);
 			klog("Mapped 0x%9x to 0x%x(len: %d)\n", entry->base,
 				 PHYS_TO_VIRT(entry->base), entry->length);
-            break;
-        }
+			break;
+		}
 	}
 
 	write_cr3(VIRT_TO_PHYS(kaddrspace.pml4));
@@ -132,8 +132,8 @@ static void map_page(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
 	pt[pte] = MAKE_TABLE_ENTRY(paddr & ~(0xfff), flags);
 
 	if (read_cr3() == (uint64_t)(VIRT_TO_PHYS(as->pml4))) {
-        invlpg(vaddr);
-    }
+		invlpg(vaddr);
+	}
 }
 
 static void unmap_page(addrspace_t *addrspace, uint64_t vaddr)
@@ -164,8 +164,8 @@ static void unmap_page(addrspace_t *addrspace, uint64_t vaddr)
 	pt[pte] = 0;
 
 	if (read_cr3() == (uint64_t)(VIRT_TO_PHYS(as->pml4))) {
-        invlpg(vaddr);
-    }
+		invlpg(vaddr);
+	}
 
 	for (int i = 0; i < 512 * 8; i++)
 		if (pt[i] != 0)
