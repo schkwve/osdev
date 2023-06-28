@@ -28,7 +28,7 @@ typedef struct {
 	size_t size;
 } memory_metadata_t;
 
-void *kalloc(uint64_t size);
+void *kmalloc(uint64_t size);
 void kfree(void *addr);
 void *krealloc(void *addr, size_t newsize);
 

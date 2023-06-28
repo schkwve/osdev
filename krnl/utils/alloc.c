@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <string.h>
 
-void *kalloc(uint64_t size)
+void *kmalloc(uint64_t size)
 {
 	memory_metadata_t *alloc =
 		(memory_metadata_t *)PHYS_TO_VIRT(phys_get(NUM_PAGES(size) + 1, 0x0));
@@ -46,7 +46,7 @@ void kfree(void *addr)
 void *krealloc(void *addr, size_t newsize)
 {
 	if (!addr)
-		return kalloc(newsize);
+		return kmalloc(newsize);
 
 	memory_metadata_t *d = (memory_metadata_t *)((uint8_t *)addr - PAGE_SIZE);
 
@@ -56,7 +56,7 @@ void *krealloc(void *addr, size_t newsize)
 		return addr;
 	}
 
-	void *new = kalloc(newsize);
+	void *new = kmalloc(newsize);
 	if (d->size > newsize)
 		memcpy(new, addr, newsize);
 	else
