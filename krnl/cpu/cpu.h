@@ -21,6 +21,7 @@
 #define __CPU_H_
 
 #include <cpu/gdt.h>
+#include <utils/utils.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -120,6 +121,15 @@ typedef struct {
 	uint64_t rsp;
 	uint64_t ss;
 } cpu_regs_t;
+
+typedef enum {
+	PAT_UNCACHEABLE = 0,
+	PAT_WRITE_COMBINING = 1,
+	PAT_WRITE_THROUGH = 4,
+	PAT_WRITE_PROTECTED = 5,
+	PAT_WRITE_BACK = 6,
+	PAT_UNCACHED = 7
+} pat_cache_t;
 
 void cpu_check(void);
 

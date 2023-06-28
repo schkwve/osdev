@@ -17,19 +17,30 @@
  *
  */
 
-#ifndef __ALLOC_H_
-#define __ALLOC_H_
+#include <mm/bitmap.h>
+#include <mm/phys.h>
 
-#include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-typedef struct {
-	size_t numpages;
-	size_t size;
-} memory_metadata_t;
+extern mem_info_t kmem_info;
 
-void *kmalloc(uint64_t size);
-void kmfree(void *addr);
-void *kmrealloc(void *addr, size_t newsize);
+void bitmap_set(uint64_t addr, uint64_t numpages)
+{
+	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
+		kmem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &=
+			~((1 << ((i / PAGE_SIZE) % BMP_PAGES_PER_BYTE)));
+	}
+}
 
-#endif // __ALLOC_H_
+bool bitmap_get(uint64_t addr, uint64_t numpages)
+{
+	bool free = true;
+	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
+		free = kmem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &
+			   (1 << ((i / PAGE_SIZE) % BMP_PAGES_PER_BYTE));
+		if (!free)
+			break;
+	}
+	return free;
+}

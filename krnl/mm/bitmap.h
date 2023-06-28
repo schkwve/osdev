@@ -17,19 +17,13 @@
  *
  */
 
-#ifndef __ALLOC_H_
-#define __ALLOC_H_
+#ifndef __BITMAP_H_
+#define __BITMAP_H_
 
-#include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-typedef struct {
-	size_t numpages;
-	size_t size;
-} memory_metadata_t;
+void bitmap_set(uint64_t addr, uint64_t numpages);
+bool bitmap_get(uint64_t addr, uint64_t numpages);
 
-void *kmalloc(uint64_t size);
-void kmfree(void *addr);
-void *kmrealloc(void *addr, size_t newsize);
-
-#endif // __ALLOC_H_
+#endif // __BITMAP_H_

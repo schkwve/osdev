@@ -28,9 +28,9 @@ void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx, uint32_t *ecx,
 					 : "0"(reg));
 }
 
-void invlpg(uint64_t addr)
+void invlpg(void *addr)
 {
-	__asm__ volatile("invlpg (%0)" ::"r"(addr) : "memory");
+	__asm__ volatile("invlpg (%0)" ::"r"(addr));
 }
 
 uint64_t rdmsr(uint32_t msr)

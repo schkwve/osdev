@@ -17,133 +17,141 @@
  *
  */
 
-#include <boot/limine.h>
 #include <mm/phys.h>
+#include <mm/virt.h>
+#include <mm/bitmap.h>
 
 #include <debug/log.h>
-#include <utils/utils.h>
 
 #include <stdint.h>
 #include <string.h>
 
-kmem_info_t mem_info;
-bitmap_t bitmap;
+mem_info_t mem_info = { 0 };
 
-uintptr_t phys_to_higher_half(uintptr_t addr)
+void phys_free(uint64_t addr, uint64_t numpages)
 {
-	if ((read_cr4() >> 12) & 1) {
-		return LVL5_PAGING_HIGHER_HALF + addr;
+	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
+		if (!bitmap_get(i, 1))
+			mem_info.free_mem += PAGE_SIZE;
+
+		mem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] |=
+			1 << ((i / PAGE_SIZE) % BMP_PAGES_PER_BYTE);
+	}
+}
+
+bool phys_alloc(uint64_t addr, uint64_t numpages)
+{
+	if (!bitmap_get(addr, numpages))
+		return false;
+
+	bitmap_set(addr, numpages);
+	mem_info.free_mem -= numpages * PAGE_SIZE;
+	return true;
+}
+
+uint64_t phys_get(uint64_t numpages, uint64_t baseaddr)
+{
+	for (uint64_t i = baseaddr; i < mem_info.phys_limit; i += PAGE_SIZE) {
+		if (phys_alloc(i, numpages))
+			return i;
 	}
 
-	return LVL4_PAGING_HIGHER_HALF + addr;
+	//panic("Out of Physical Memory");
+	klog("Out of physical memory\n");
+	return 0;
 }
 
-uintptr_t higher_half_to_phys(uintptr_t addr)
+void phys_init(struct limine_memmap_response *map)
 {
-	if ((read_cr4() >> 12) & 1) {
-		return LVL5_PAGING_HIGHER_HALF - addr;
-	}
-
-	return LVL4_PAGING_HIGHER_HALF - addr;
-}
-
-void bitmap_set(int bit)
-{
-	bitmap.bitmap[bit / 8] |= (1 << (bit % 8));
-}
-
-void bitmap_clear(int bit)
-{
-	bitmap.bitmap[bit / 8] &= ~(1 << (bit % 8));
-}
-
-uint8_t bitmap_get(int bit)
-{
-	return bitmap.bitmap[bit / 8] & (1 << (bit % 8));
-}
-
-void phys_mm_init(struct limine_memmap_response *mmap)
-{
-	// fill kmem_info
+	mem_info.phys_limit = 0;
 	mem_info.total_mem = 0;
-	mem_info.used_mem = 0;
+	mem_info.free_mem = 0;
 
-	size_t highest_page = 0;
+	for (size_t i = 0; i < map->entry_count; i++) {
+		struct limine_memmap_entry *entry = map->entries[i];
 
-	for (uint64_t i = 0; i < mmap->entry_count; i++) {
-		struct limine_memmap_entry *entry = mmap->entries[i];
-
-		klog("Entry %i | Base: 0x%.12llx | Length: %llu (0x%llx) | Type: %d\n",
-			 i, entry->base, entry->length, entry->length, entry->type);
-
-		size_t top = entry->base + entry->length;
-		if (top > highest_page)
-			highest_page = top;
-
-		if (entry->type != LIMINE_MEMMAP_USABLE)
+		if (entry->type == LIMINE_MEMMAP_RESERVED)
 			continue;
 
-		mem_info.total_mem += entry->length;
+		if (entry->type == LIMINE_MEMMAP_USABLE ||
+			entry->type == LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE ||
+			entry->type == LIMINE_MEMMAP_ACPI_RECLAIMABLE ||
+			entry->type == LIMINE_MEMMAP_KERNEL_AND_MODULES) {
+			mem_info.total_mem += entry->length;
+		}
+
+		uint64_t new_limit = entry->base + entry->length;
+
+		if (new_limit > mem_info.phys_limit) {
+			mem_info.phys_limit = new_limit;
+			klog("PMM: entry base 0x%x, length %d, type %d\n", entry->base,
+				 entry->length, entry->type);
+		}
 	}
 
-	klog("Total Memory: %llu MB\n", (mem_info.total_mem / 1024 / 1024));
+	uint64_t bitmap_size = mem_info.phys_limit / (PAGE_SIZE * BMP_PAGES_PER_BYTE);
+	bool bitmap_place_found = false;
+	for (size_t i = 0; i < map->entry_count; i++) {
+		struct limine_memmap_entry *entry = map->entries[i];
 
-	bitmap.size = ALIGN_UP(ALIGN_DOWN(highest_page, PAGE_SIZE) / PAGE_SIZE / 8,
-						   PAGE_SIZE);
-
-	// Look for big enough memory to put the bitmap in
-	for (uint64_t i = 0; i < mmap->entry_count; i++) {
-		struct limine_memmap_entry *entry = mmap->entries[i];
-
-		if (entry->type != LIMINE_MEMMAP_USABLE)
+		if (entry->base + entry->length <= 0x100000)
 			continue;
 
-		if (entry->length > bitmap.size) {
-			bitmap.bitmap = (uint64_t *)(phys_to_higher_half(entry->base));
-			entry->base += bitmap.size;
-			entry->length -= bitmap.size;
-			break;
+		if (entry->length >= bitmap_size && entry->type == LIMINE_MEMMAP_USABLE) {
+			if (!bitmap_place_found)
+				mem_info.bitmap = (uint8_t *)PHYS_TO_VIRT(entry->base);
+			bitmap_place_found = true;
 		}
 	}
 
-	// Map all memory as used except the usable memory
-	mem_info.used_mem = mem_info.total_mem;
-	memset((void *)bitmap.bitmap, 0xFF, bitmap.size);
+	memset(mem_info.bitmap, 0, bitmap_size);
+	klog("Memory bitmap address: 0x%x\n", mem_info.bitmap);
 
-	for (uint64_t i = 0; i < mmap->entry_count; i++) {
-		struct limine_memmap_entry *entry = mmap->entries[i];
-		if (entry->type == LIMINE_MEMMAP_USABLE) {
-			phys_mm_free((void *)entry->base, entry->length / PAGE_SIZE);
-		}
+	// populate the bitmap
+	for (size_t i = 0; i < map->entry_count; i++) {
+		struct limine_memmap_entry *entry = map->entries[i];
+
+		if (entry->base + entry->length <= 0x100000)
+			continue;
+
+		if (entry->type == LIMINE_MEMMAP_USABLE)
+			phys_free(entry->base, NUM_PAGES(entry->length));
 	}
 
-	bitmap_set(0);
+	// mark the bitmap as used
+	phys_alloc(VIRT_TO_PHYS(mem_info.bitmap), NUM_PAGES(bitmap_size));
 
-	klog("PMM Init\n");
+	klog("PMM initialization finished\n");
+	klog("Memory total: %d, phys limit: %d (0x%x), free: %d, used: %d\n",
+		 mem_info.total_mem, mem_info.phys_limit, mem_info.phys_limit,
+		 mem_info.free_mem, mem_info.total_mem - mem_info.free_mem);
 }
 
-void *phys_mm_alloc(size_t pages)
+uint64_t phys_get_total_mem(void)
 {
-	if (pages == 0)
-		return NULL;
-
-	for (size_t i = 0; i < pages; i++) {
-		for (size_t j = 0; j < (pages / PAGE_SIZE); i++) {
-			if (!bitmap_get(i)) {
-				return (void *)(pages * PAGE_SIZE);
-			}
-		}
-	}
-
-	return NULL;
+	return mem_info.total_mem / (1024 * 1024);
 }
 
-void phys_mm_free(void *ptr, size_t pages)
+uint64_t phys_get_free_mem(void)
 {
-	uint64_t index = higher_half_to_phys((uint64_t)ptr / PAGE_SIZE);
-	for (size_t i = 0; i < pages; i++) {
-		bitmap_clear(index + i);
-	}
+	return mem_info.free_mem / (1024 * 1024);
+}
 
-	mem_info.used_mem -= pages;
+uint64_t phys_get_used_mem(void)
+{
+	return (mem_info.total_mem - mem_info.free_mem) / (1024 * 1024);
+}
+
+void phys_dump_usage(void)
+{
+	uint64_t total = mem_info.total_mem;
+	uint64_t free = mem_info.free_mem;
+	uint64_t used = total - ffree;
+
+	klog("Physical memory usage:\n"
+		 "  Total: %8d KB (%4d MB)\n"
+		 "  Free : %8d KB (%4d MB)\n"
+		 "  Used : %8d KB (%4d MB)\n",
+		 total / 1024, total / (1024 * 1024), free / 1024, free / (1024 * 1024), used / 1024,
+		 used / (1024 * 1024));
 }

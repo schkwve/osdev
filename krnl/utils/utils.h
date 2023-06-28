@@ -27,7 +27,7 @@
 void cpuid(uint32_t reg, uint32_t *eax, uint32_t *ebx, uint32_t *ecx,
 		   uint32_t *edx);
 
-void invlpg(uint64_t addr);
+void invlpg(void *addr);
 
 uint64_t rdmsr(uint32_t msr);
 void wrmsr(uint32_t msr, uint64_t val);

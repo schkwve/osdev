@@ -29,6 +29,7 @@
 #include <int/irq.h>
 
 #include <mm/phys.h>
+#include <mm/virt.h>
 
 #include <dd/apic/pic.h>
 #include <dd/pit/pit.h>
@@ -47,6 +48,11 @@ static volatile struct limine_rsdp_request rsdp_request = {
 	.revision = 0,
 };
 
+static volatile struct limine_kernel_address_request kernel_addr_request = {
+	.id = LIMINE_KERNEL_ADDRESS_REQUEST,
+	.revision = 0
+};
+
 void _start(void)
 {
 	serial_init();
@@ -57,7 +63,8 @@ void _start(void)
 	acpi_init(rsdp_request.response);
 	cpu_check();
 
-	phys_mm_init(memmap_request.response);
+	phys_init(memmap_request.response);
+	virt_init(memmap_request.response, kernel_addr_request.response);
 
 	pit_init();
 

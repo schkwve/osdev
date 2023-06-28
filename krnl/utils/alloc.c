@@ -18,37 +18,50 @@
  */
 
 #include <mm/phys.h>
+#include <mm/virt.h>
 
 #include <utils/alloc.h>
 
-void *kmalloc(size_t size)
+#include <stdint.h>
+#include <string.h>
+
+void *kmalloc(uint64_t size)
 {
-	void *ptr = NULL;
+	memory_metadata_t *alloc =
+		(memory_metadata_t *)PHYS_TO_VIRT(phys_get(NUM_PAGES(size) + 1, 0x0));
 
-	size_t new_size = next_pow_two(size);
+	alloc->numpages = NUM_PAGES(size);
+	alloc->size = size;
 
-	ptr = phys_mm_alloc((new_size / PAGE_SIZE) + 1);
-	ptr += PAGE_SIZE;
-
-	return ptr;
+	return ((uint8_t *)alloc) + PAGE_SIZE;
 }
 
-void kfree(void *ptr)
+void kmfree(void *addr)
 {
-	if (!ptr) {
-		return;
-	}
+	memory_metadata_t *d = (memory_metadata_t *)((uint8_t *)addr - PAGE_SIZE);
 
-	phys_mm_free(ptr, (sizeof(ptr) / PAGE_SIZE) + 1);
+	phys_free(VIRT_TO_PHYS(d), d->numpages + 1);
 }
 
-size_t next_pow_two(size_t num)
+void *kmrealloc(void *addr, size_t newsize)
 {
-	size_t result = 2;
+	if (!addr)
+		return kmalloc(newsize);
 
-	while (result < num) {
-		result <<= 1;
+	memory_metadata_t *d = (memory_metadata_t *)((uint8_t *)addr - PAGE_SIZE);
+
+	if (NUM_PAGES(d->size) == NUM_PAGES(newsize)) {
+		d->size = newsize;
+		d->numpages = NUM_PAGES(newsize);
+		return addr;
 	}
 
-	return result;
+	void *new = kmalloc(newsize);
+	if (d->size > newsize)
+		memcpy(new, addr, newsize);
+	else
+		memcpy(new, addr, d->size);
+
+	kmfree(addr);
+	return new;
 }
