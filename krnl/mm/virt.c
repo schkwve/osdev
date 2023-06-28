@@ -93,8 +93,8 @@ void virt_init(struct limine_memmap_response *mmap,
 	klog("VMM Init\n");
 }
 
-static void map_page(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
-					 uint64_t flags)
+void virt_map_page(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
+				   uint64_t flags)
 {
 	addrspace_t *as = (addrspace == NULL ? &kaddrspace : addrspace);
 
@@ -136,7 +136,7 @@ static void map_page(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
 	}
 }
 
-static void unmap_page(addrspace_t *addrspace, uint64_t vaddr)
+void virt_unmap_page(addrspace_t *addrspace, uint64_t vaddr)
 {
 	addrspace_t *as = (addrspace == NULL ? &kaddrspace : addrspace);
 
@@ -146,20 +146,24 @@ static void unmap_page(addrspace_t *addrspace, uint64_t vaddr)
 	uint16_t pml4e = (vaddr >> 39) & 0x1ff;
 
 	uint64_t *pml4 = as->pml4;
-	if (!(pml4[pml4e] & VIRT_FLAG_PRESENT))
+	if (!(pml4[pml4e] & VIRT_FLAG_PRESENT)) {
 		return;
+	}
 
 	uint64_t *pdpt = (uint64_t *)PHYS_TO_VIRT(pml4[pml4e] & ~(0x1ff));
-	if (!(pdpt[pdpe] & VIRT_FLAG_PRESENT))
+	if (!(pdpt[pdpe] & VIRT_FLAG_PRESENT)) {
 		return;
+	}
 
 	uint64_t *pd = (uint64_t *)PHYS_TO_VIRT(pdpt[pdpe] & ~(0x1ff));
-	if (!(pd[pde] & VIRT_FLAG_PRESENT))
+	if (!(pd[pde] & VIRT_FLAG_PRESENT)) {
 		return;
+	}
 
 	uint64_t *pt = (uint64_t *)PHYS_TO_VIRT(pd[pde] & ~(0x1ff));
-	if (!(pt[pte] & VIRT_FLAG_PRESENT))
+	if (!(pt[pte] & VIRT_FLAG_PRESENT)) {
 		return;
+	}
 
 	pt[pte] = 0;
 
@@ -168,28 +172,28 @@ static void unmap_page(addrspace_t *addrspace, uint64_t vaddr)
 	}
 
 	for (int i = 0; i < 512 * 8; i++)
-		if (pt[i] != 0)
-			goto done;
+		if (pt[i] != 0) {
+			return;
+		}
 
 	pd[pde] = 0;
 	phys_free(VIRT_TO_PHYS(pt), 8);
 
 	for (int i = 0; i < 512 * 8; i++)
-		if (pd[i] != 0)
-			goto done;
+		if (pd[i] != 0) {
+			return;
+		}
 
 	pdpt[pdpe] = 0;
 	phys_free(VIRT_TO_PHYS(pd), 8);
 
 	for (int i = 0; i < 512 * 8; i++)
-		if (pdpt[i] != 0)
-			goto done;
+		if (pdpt[i] != 0) {
+			return;
+		}
 
 	pml4[pml4e] = 0;
 	phys_free(VIRT_TO_PHYS(pdpt), 8);
-
-done:
-	return;
 }
 
 uint64_t virt_get_paddr(addrspace_t *addrspace, uint64_t vaddr)
@@ -238,7 +242,6 @@ void virt_map(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
 void virt_unmap(addrspace_t *addrspace, uint64_t vaddr, uint64_t np, bool us)
 {
 	if (us && (addrspace == NULL)) {
-		/* We must unmap the corresponding vaddr in virt_map() function */
 		size_t len = vec_length(&mmap_list);
 		for (size_t i = 0; i < len; i++) {
 			mem_map_t m = vec_at(&mmap_list, i);

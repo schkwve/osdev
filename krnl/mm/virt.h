@@ -47,6 +47,10 @@ typedef struct {
 void virt_init(struct limine_memmap_response *mmap,
 			   struct limine_kernel_address_response *kernel);
 
+void virt_map_page(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
+				   uint64_t flags);
+void virt_unmap_page(addrspace_t *addrspace, uint64_t vaddr);
+
 void virt_map(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
 			  uint64_t np, uint64_t flags, bool us);
 void virt_unmap(addrspace_t *addrspace, uint64_t vaddr, uint64_t np, bool us);

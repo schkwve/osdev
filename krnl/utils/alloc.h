@@ -28,8 +28,8 @@ typedef struct {
 	size_t size;
 } memory_metadata_t;
 
-void *kmalloc(uint64_t size);
-void kmfree(void *addr);
-void *kmrealloc(void *addr, size_t newsize);
+void *kalloc(uint64_t size);
+void kfree(void *addr);
+void *krealloc(void *addr, size_t newsize);
 
 #endif // __ALLOC_H_
