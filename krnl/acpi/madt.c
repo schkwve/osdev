@@ -41,6 +41,7 @@ void acpi_madt_init(void *rsdt_addr)
 	for (int i = 0; i < entries; i++) {
 		sdt_t *header = (sdt_t *)rsdt->ptr[i];
 		if (strncmp(header->sig, "APIC", 4) == 0) {
+			klog("found APIC signature\n");
 			madt = (madt_t *)rsdt->ptr[i];
 			uint8_t *madt_hdr = (uint8_t *)header;
 			lapic_ptr = (uint64_t)((madt_hdr + 0x24));
@@ -62,12 +63,12 @@ void acpi_madt_init(void *rsdt_addr)
 			}
 
 			klog(
-				"Found %d cores, IOAPIC @ 0x%lx, LAPIC @ 0x%lx, Processor IDs:",
+				"found %d cores, IOAPIC @ 0x%lx, LAPIC @ 0x%lx, Processor IDs:",
 				ncores, ioapic_ptr, lapic_ptr);
 			for (int i = 0; i < ncores; i++) {
-				klog(" %d", lapic_ids[i]);
+				_klog(" %d", lapic_ids[i]);
 			}
-			klog("\n");
+			_klog("\n");
 			return;
 		}
 	}

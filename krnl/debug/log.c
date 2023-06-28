@@ -24,7 +24,7 @@
 
 char klog_buf[4096];
 
-void klog(char *fmt, ...)
+void _klog(char *fmt, ...)
 {
 	va_list ptr;
 	va_start(ptr, fmt);

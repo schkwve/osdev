@@ -43,8 +43,8 @@
 
 typedef struct {
 	uint64_t phys_limit;
-	uint64_t total_size;
-	uint64_t free_size;
+	uint64_t total_mem;
+	uint64_t free_mem;
 
 	uint8_t *bitmap;
 } mem_info_t;
@@ -66,7 +66,5 @@ void phys_free(uint64_t addr, uint64_t numpages);
 uint64_t phys_get_total_mem(void);
 uint64_t phys_get_free_mem(void);
 uint64_t phys_get_used_mem(void);
-
-void phys_dump_usage(void);
 
 #endif // __PHYS_H_

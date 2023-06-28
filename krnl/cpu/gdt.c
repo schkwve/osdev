@@ -69,5 +69,5 @@ void gdt_init(void)
 
 	gdt_load(&gdtr);
 
-	klog("GDT Init\n");
+	klog("done\n");
 }

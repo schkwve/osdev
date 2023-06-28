@@ -20,6 +20,7 @@
 #include <dd/apic/pic.h>
 #include <int/irq.h>
 
+#include <debug/log.h>
 #include <utils/utils.h>
 
 #include "kbd.h"
@@ -34,6 +35,7 @@ void ps2_kbd_init()
 	}
 
 	ps2_kbd_send_cmd(0xF4);
+	klog("done\n");
 }
 
 void ps2_kbd_send_cmd(uint8_t cmd)

@@ -37,7 +37,7 @@ void *acpi_rsdp_init(struct limine_rsdp_response *response)
 	}
 
 	if ((checksum & 0xFF) != 0) {
-		klog("Invalid RSDP Checksum!\n");
+		klog("invalid RSDP Checksum!\n");
 		//panic("Invalid RSDP Checksum!\n");
 		return NULL;
 	}

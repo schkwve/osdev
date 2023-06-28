@@ -44,7 +44,7 @@
 		if ((vec)->capacity < (vec)->len * sizeof(elem)) {         \
 			(vec)->capacity =                                      \
 				(vec)->len * sizeof(elem) * VECTOR_RESIZE_FACTOR;  \
-			(vec)->data = kmrealloc((vec)->data, (vec)->capacity); \
+			(vec)->data = krealloc((vec)->data, (vec)->capacity); \
 		}                                                          \
 		(vec)->data[(vec)->len - 1] = elem;                        \
 	}

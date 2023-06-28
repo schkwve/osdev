@@ -31,7 +31,7 @@
 static addrspace_t kaddrspace = { 0 };
 vec_new_static(mem_map_t, mmap_list);
 
-extern mem_info_t kmem_info;
+extern mem_info_t mem_info;
 
 void virt_init(struct limine_memmap_response *mmap,
 			   struct limine_kernel_address_response *kernel)
@@ -39,9 +39,9 @@ void virt_init(struct limine_memmap_response *mmap,
 	kaddrspace.pml4 = kmalloc(PAGE_SIZE * 8);
 	memset(kaddrspace.pml4, 0, PAGE_SIZE * 8);
 
-	virt_map(NULL, MEM_VIRT_OFFSET, 0, NUM_PAGES(kmem_info.phys_limit),
+	virt_map(NULL, MEM_VIRT_OFFSET, 0, NUM_PAGES(mem_info.phys_limit),
 			 VIRT_FLAGS_DEFAULT | VIRT_FLAGS_USERMODE, true);
-	klog("Mapped %d bytes memory to 0x%x\n", kmem_info.phys_limit,
+	klog("mapped %d bytes memory to 0x%x\n", mem_info.phys_limit,
 		 MEM_VIRT_OFFSET);
 
 	for (size_t i = 0; i < mmap->entry_count; i++) {
@@ -53,7 +53,7 @@ void virt_init(struct limine_memmap_response *mmap,
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
 						 VIRT_FLAGS_USERMODE,
 					 false);
-			klog("Mapped bootloader reclaimable 0x%9x to 0x%x (len: %d)\n",
+			klog("mapped 0x%x to 0x%x (len: %d)\n",
 				 entry->base, entry->base, entry->length);
 			break;
 		case LIMINE_MEMMAP_FRAMEBUFFER:
@@ -62,13 +62,13 @@ void virt_init(struct limine_memmap_response *mmap,
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
 						 VIRT_FLAGS_USERMODE,
 					 true);
-			klog("Mapped framebuffer 0x%9x to 0x%x (len: %d)\n", entry->base,
+			klog("mapped 0x%x to 0x%x (len: %d)\n", entry->base,
 				 PHYS_TO_VIRT(entry->base), entry->length);
 			virt_map(NULL, entry->base, entry->base, NUM_PAGES(entry->length),
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
 						 VIRT_FLAGS_USERMODE,
 					 false);
-			klog("Mapped framebuffer 0x%9x to 0x%x (len: %d)\n", entry->base,
+			klog("mapped 0x%x to 0x%x (len: %d)\n", entry->base,
 				 entry->base, entry->length);
 			break;
 		case LIMINE_MEMMAP_KERNEL_AND_MODULES:
@@ -76,21 +76,21 @@ void virt_init(struct limine_memmap_response *mmap,
 				kernel->virtual_base + entry->base - kernel->physical_base;
 			virt_map(NULL, vaddr, entry->base, NUM_PAGES(entry->length),
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAGS_USERMODE, true);
-			klog("Mapped kernel 0x%9x to 0x%x (len: %d)\n", entry->base, vaddr,
+			klog("mapped 0x%x to 0x%x (len: %d)\n", entry->base, vaddr,
 				 entry->length);
 			break;
 		default:
 			virt_map(NULL, PHYS_TO_VIRT(entry->base), entry->base,
 					 NUM_PAGES(entry->length),
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAGS_USERMODE, true);
-			klog("Mapped 0x%9x to 0x%x(len: %d)\n", entry->base,
+			klog("mapped 0x%x to 0x%x(len: %d)\n", entry->base,
 				 PHYS_TO_VIRT(entry->base), entry->length);
 			break;
 		}
 	}
 
 	write_cr3(VIRT_TO_PHYS(kaddrspace.pml4));
-	klog("VMM Init\n");
+	klog("done\n");
 }
 
 void virt_map_page(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
@@ -235,7 +235,7 @@ void virt_map(addrspace_t *addrspace, uint64_t vaddr, uint64_t paddr,
 	}
 
 	for (size_t i = 0; i < np * PAGE_SIZE; i += PAGE_SIZE) {
-		map_page(addrspace, vaddr + i, paddr + i, flags);
+		virt_map_page(addrspace, vaddr + i, paddr + i, flags);
 	}
 }
 
@@ -253,6 +253,6 @@ void virt_unmap(addrspace_t *addrspace, uint64_t vaddr, uint64_t np, bool us)
 	}
 
 	for (size_t i = 0; i < np * PAGE_SIZE; i += PAGE_SIZE) {
-		unmap_page(addrspace, vaddr + i);
+		virt_unmap_page(addrspace, vaddr + i);
 	}
 }

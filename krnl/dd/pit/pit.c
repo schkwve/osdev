@@ -21,6 +21,8 @@
 #include <int/irq.h>
 #include <utils/utils.h>
 
+#include <debug/log.h>
+
 #include <stdint.h>
 
 uint8_t pit_ticks;
@@ -33,6 +35,7 @@ void pit_init()
 	outb(PIT_COUNTER0, divisor >> 8);
 
 	irq_register(0, pit_handler);
+	klog("done\n");
 }
 
 void pit_handler()

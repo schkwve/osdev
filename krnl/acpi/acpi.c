@@ -21,10 +21,13 @@
 #include <acpi/rsdt.h>
 #include <acpi/madt.h>
 
+#include <debug/log.h>
+
 extern madt_t *madt;
 
 void acpi_init()
 {
 	void *rsdp = acpi_rsdp_init();
 	acpi_madt_init(rsdp);
+	klog("done\n");
 }

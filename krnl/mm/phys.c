@@ -58,6 +58,9 @@ uint64_t phys_get(uint64_t numpages, uint64_t baseaddr)
 
 	//panic("Out of Physical Memory");
 	klog("Out of physical memory\n");
+	for (;;) {
+		__asm__ volatile("cli;hlt");
+	}
 	return 0;
 }
 
@@ -84,7 +87,7 @@ void phys_init(struct limine_memmap_response *map)
 
 		if (new_limit > mem_info.phys_limit) {
 			mem_info.phys_limit = new_limit;
-			klog("PMM: entry base 0x%x, length %d, type %d\n", entry->base,
+			klog("entry base 0x%x, length %d, type %d\n", entry->base,
 				 entry->length, entry->type);
 		}
 	}
@@ -107,7 +110,7 @@ void phys_init(struct limine_memmap_response *map)
 	}
 
 	memset(mem_info.bitmap, 0, bitmap_size);
-	klog("Memory bitmap address: 0x%x\n", mem_info.bitmap);
+	klog("memory bitmap address: 0x%x\n", mem_info.bitmap);
 
 	// populate the bitmap
 	for (size_t i = 0; i < map->entry_count; i++) {
@@ -123,10 +126,10 @@ void phys_init(struct limine_memmap_response *map)
 	// mark the bitmap as used
 	phys_alloc(VIRT_TO_PHYS(mem_info.bitmap), NUM_PAGES(bitmap_size));
 
-	klog("PMM initialization finished\n");
-	klog("Memory total: %d, phys limit: %d (0x%x), free: %d, used: %d\n",
+	klog("memory total: %d, phys limit: %d (0x%x), free: %d, used: %d\n",
 		 mem_info.total_mem, mem_info.phys_limit, mem_info.phys_limit,
 		 mem_info.free_mem, mem_info.total_mem - mem_info.free_mem);
+	klog("done\n");
 }
 
 uint64_t phys_get_total_mem(void)
@@ -142,18 +145,4 @@ uint64_t phys_get_free_mem(void)
 uint64_t phys_get_used_mem(void)
 {
 	return (mem_info.total_mem - mem_info.free_mem) / (1024 * 1024);
-}
-
-void phys_dump_usage(void)
-{
-	uint64_t total = mem_info.total_mem;
-	uint64_t free = mem_info.free_mem;
-	uint64_t used = total - ffree;
-
-	klog("Physical memory usage:\n"
-		 "  Total: %8d KB (%4d MB)\n"
-		 "  Free : %8d KB (%4d MB)\n"
-		 "  Used : %8d KB (%4d MB)\n",
-		 total / 1024, total / (1024 * 1024), free / 1024, free / (1024 * 1024),
-		 used / 1024, used / (1024 * 1024));
 }

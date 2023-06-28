@@ -20,6 +20,9 @@
 #ifndef __LOG_H_
 #define __LOG_H_
 
-void klog(char *fmt, ...);
+
+#define klog(fmt, ...) _klog("%s: " fmt, __func__, ##__VA_ARGS__)
+
+void _klog(char *fmt, ...);
 
 #endif // __LOG_H_

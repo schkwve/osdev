@@ -23,12 +23,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-extern mem_info_t kmem_info;
+extern mem_info_t mem_info;
 
 void bitmap_set(uint64_t addr, uint64_t numpages)
 {
 	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
-		kmem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &=
+		mem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &=
 			~((1 << ((i / PAGE_SIZE) % BMP_PAGES_PER_BYTE)));
 	}
 }
@@ -37,7 +37,7 @@ bool bitmap_get(uint64_t addr, uint64_t numpages)
 {
 	bool free = true;
 	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
-		free = kmem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &
+		free = mem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &
 			   (1 << ((i / PAGE_SIZE) % BMP_PAGES_PER_BYTE));
 		if (!free)
 			break;

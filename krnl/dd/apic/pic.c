@@ -20,6 +20,8 @@
 #include <dd/apic/pic.h>
 #include <utils/utils.h>
 
+#include <debug/log.h>
+
 #include <stdint.h>
 
 void pic_init(uint8_t offset1, uint8_t offset2)
@@ -42,6 +44,8 @@ void pic_init(uint8_t offset1, uint8_t offset2)
 	// restore masks
 	pic_send(PIC1_DATA, mask1);
 	pic_send(PIC2_DATA, mask2);
+
+	klog("done\n");
 }
 
 void pic_eoi(int irq)
