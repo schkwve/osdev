@@ -17,35 +17,20 @@
  *
  */
 
-#include <dd/apic/pic.h>
-#include <int/irq.h>
+#ifndef __LAPIC_H_
+#define __LAPIC_H_
 
-#include <debug/log.h>
-#include <utils/utils.h>
+#include <stdint.h>
 
-#include "kbd.h"
+#define LAPIC_SPURIOUS 0x0F0
+#define LAPIC_SPURIOUS_INT 255
+#define LAPIC_ENABLE (1 << 8)
+#define LAPIC_EOI 0xB0
 
-void ps2_kbd_init()
-{
-	irq_register(1, ps2_kbd_handler);
+void lapic_init(void);
 
-	while (inb(PS2_KBD_CMD) & 0x1) {
-		inb(PS2_KBD_DATA);
-	}
+void lapic_eoi(void);
+void lapic_out(uint32_t reg, uint32_t data);
+void lapic_in(uint32_t reg);
 
-	ps2_kbd_send_cmd(0xF4);
-	klog("done\n");
-}
-
-void ps2_kbd_send_cmd(uint8_t cmd)
-{
-	while (inb(PS2_KBD_CMD) & 0x2) {
-		outb(PS2_KBD_DATA, cmd);
-	}
-}
-
-void ps2_kbd_handler(cpu_regs_t *regs)
-{
-	uint8_t scancode = inb(PS2_KBD_DATA);
-	klog("0x%x\n", scancode);
-}
+#endif // __LAPIC_H_

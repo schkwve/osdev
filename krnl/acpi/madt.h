@@ -32,4 +32,7 @@ typedef struct {
 
 void acpi_madt_init(void *rsdt_addr);
 
+uint8_t *acpi_madt_get_lapic();
+uint8_t *acpi_madt_get_ioapic();
+
 #endif // __MADT_H_

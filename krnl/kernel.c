@@ -31,6 +31,7 @@
 #include <mm/phys.h>
 #include <mm/virt.h>
 
+#include <dd/apic/apic.h>
 #include <dd/apic/pic.h>
 #include <dd/pit/pit.h>
 #include <dd/ps2/kbd.h>
@@ -61,10 +62,12 @@ void _start(void)
 	idt_init();
 
 	acpi_init(rsdp_request.response);
-	cpu_check();
+	apic_init();
 
 	phys_init(memmap_request.response);
 	virt_init(memmap_request.response, kernel_addr_request.response);
+
+	cpu_check();
 
 	pit_init();
 

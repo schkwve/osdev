@@ -18,34 +18,33 @@
  */
 
 #include <dd/apic/pic.h>
-#include <int/irq.h>
+#include <dd/apic/lapic.h>
 
 #include <debug/log.h>
 #include <utils/utils.h>
 
-#include "kbd.h"
+#include <stdint.h>
 
-void ps2_kbd_init()
+void lapic_init(void)
 {
-	irq_register(1, ps2_kbd_handler);
+	pic_disable();
+	uint32_t lapic_addr = PHYS_TO_VIRT(acpi_madt_get_lapic());
+	lapic_out(LAPIC_SPURIOUS, LAPIC_ENABLE | LAPIC_SPURIOUS_INT);
 
-	while (inb(PS2_KBD_CMD) & 0x1) {
-		inb(PS2_KBD_DATA);
-	}
-
-	ps2_kbd_send_cmd(0xF4);
 	klog("done\n");
 }
 
-void ps2_kbd_send_cmd(uint8_t cmd)
+void lapic_eoi(void)
 {
-	while (inb(PS2_KBD_CMD) & 0x2) {
-		outb(PS2_KBD_DATA, cmd);
-	}
+	lapic_out(LAPIC_EOI, 0);
 }
 
-void ps2_kbd_handler(cpu_regs_t *regs)
+void lapic_out(uint32_t reg, uint32_t data)
 {
-	uint8_t scancode = inb(PS2_KBD_DATA);
-	klog("0x%x\n", scancode);
+	mmio_outw(acpi_madt_get_lapic() + reg, data);
+}
+
+void lapic_in(uint32_t reg)
+{
+	mmio_inw(acpi_madt_get_lapic() + reg);
 }

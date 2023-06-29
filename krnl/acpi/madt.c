@@ -73,3 +73,13 @@ void acpi_madt_init(void *rsdt_addr)
 		}
 	}
 }
+
+uint8_t *acpi_madt_get_lapic()
+{
+	return (uint8_t *)(uintptr_t)lapic_ptr;
+}
+
+uint8_t *acpi_madt_get_ioapic()
+{
+	return (uint8_t *)(uintptr_t)ioapic_ptr;
+}

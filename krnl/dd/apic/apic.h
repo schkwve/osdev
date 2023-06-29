@@ -17,35 +17,9 @@
  *
  */
 
-#include <dd/apic/pic.h>
-#include <int/irq.h>
+#ifndef __APIC_H_
+#define __APIC_H_
 
-#include <debug/log.h>
-#include <utils/utils.h>
+void apic_init(void);
 
-#include "kbd.h"
-
-void ps2_kbd_init()
-{
-	irq_register(1, ps2_kbd_handler);
-
-	while (inb(PS2_KBD_CMD) & 0x1) {
-		inb(PS2_KBD_DATA);
-	}
-
-	ps2_kbd_send_cmd(0xF4);
-	klog("done\n");
-}
-
-void ps2_kbd_send_cmd(uint8_t cmd)
-{
-	while (inb(PS2_KBD_CMD) & 0x2) {
-		outb(PS2_KBD_DATA, cmd);
-	}
-}
-
-void ps2_kbd_handler(cpu_regs_t *regs)
-{
-	uint8_t scancode = inb(PS2_KBD_DATA);
-	klog("0x%x\n", scancode);
-}
+#endif // __APIC_H_
