@@ -133,6 +133,8 @@ typedef enum {
 
 void cpu_check(void);
 
+void sse_init(void);
+
 extern void write_msr(uint32_t msr, uint64_t val);
 extern uint64_t read_msr(uint32_t msr);
 

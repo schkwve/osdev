@@ -18,6 +18,7 @@
  */
 
 #include <cpu/cpu.h>
+#include <cpu/fpu.h>
 #include <utils/utils.h>
 #include <debug/log.h>
 
@@ -36,19 +37,11 @@ void cpu_check(void)
 	if (lsf >= 0x01) {
 		cpuid(0x01, &eax, &ebx, &ecx, &edx);
 
-		if (!(edx & EDX_APIC)) {
-			//panic("CPU does not have APIC!");
-			klog("CPU does not have APIC! Halting...\n");
-			for (;;) {
-				__asm__ volatile("cli;hlt");
-			}
+		if (edx & EDX_FPU) {
+			fpu_init();
 		}
-		if (!(edx & EDX_MSR)) {
-			//panic("CPU does not have MSR!");
-			klog("CPU does not have MSR! Halting...\n");
-			for (;;) {
-				__asm__ volatile("cli;hlt");
-			}
+		if (edx & EDX_SSE) {
+			sse_init();
 		}
 	}
 
@@ -74,4 +67,13 @@ void cpu_check(void)
 
 	klog("CPU Vendor: %s\n", cpu_vendor);
 	klog("CPU Name: %s\n", p);
+}
+
+void sse_init(void)
+{
+	uint64_t cr4 = read_cr4();
+	cr4 |= (1 << 9);
+	cr4 |= (1 << 10);
+	write_cr4(cr4);
+	klog("done\n");
 }

@@ -50,7 +50,7 @@ static volatile struct limine_rsdp_request rsdp_request = {
 
 static volatile struct limine_kernel_address_request kernel_addr_request = {
 	.id = LIMINE_KERNEL_ADDRESS_REQUEST,
-	.revision = 0
+	.revision = 0,
 };
 
 void _start(void)
