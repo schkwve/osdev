@@ -77,14 +77,14 @@ uint64_t read_cr2(void)
 uint64_t read_cr3(void)
 {
 	uint64_t cr3;
-	__asm__ volatile("mov %%cr0, %0" : "=rax"(cr3));
+	__asm__ volatile("mov %%cr3, %0" : "=rax"(cr3));
 	return cr3;
 }
 
 uint64_t read_cr4(void)
 {
 	uint64_t cr4;
-	__asm__ volatile("mov %%cr0, %0" : "=rax"(cr4));
+	__asm__ volatile("mov %%cr4, %0" : "=rax"(cr4));
 	return cr4;
 }
 
