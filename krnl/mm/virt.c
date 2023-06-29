@@ -53,8 +53,8 @@ void virt_init(struct limine_memmap_response *mmap,
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
 						 VIRT_FLAGS_USERMODE,
 					 false);
-			klog("mapped 0x%x to 0x%x (len: %d)\n",
-				 entry->base, entry->base, entry->length);
+			klog("mapped 0x%x to 0x%x (len: %d)\n", entry->base, entry->base,
+				 entry->length);
 			break;
 		case LIMINE_MEMMAP_FRAMEBUFFER:
 			virt_map(NULL, PHYS_TO_VIRT(entry->base), entry->base,
@@ -68,8 +68,8 @@ void virt_init(struct limine_memmap_response *mmap,
 					 VIRT_FLAGS_DEFAULT | VIRT_FLAG_WRITECOMBINE |
 						 VIRT_FLAGS_USERMODE,
 					 false);
-			klog("mapped 0x%x to 0x%x (len: %d)\n", entry->base,
-				 entry->base, entry->length);
+			klog("mapped 0x%x to 0x%x (len: %d)\n", entry->base, entry->base,
+				 entry->length);
 			break;
 		case LIMINE_MEMMAP_KERNEL_AND_MODULES:
 			uint64_t vaddr =

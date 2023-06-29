@@ -25,7 +25,7 @@
 
 #include <stdint.h>
 
-const char *isr_exceptions[] = { "#DE: Division Error",
+const char *isr_exceptions[] = { "#DE: Division By Zero",
 								 "#DB: Debug Exception",
 								 " — : NMI Interrupt",
 								 "#BP: Breakpoint",

@@ -38,15 +38,15 @@
 #define vec_new(type, name) vec_struct(type) name = { 0 }
 #define vec_new_static(type, name) static vec_new(type, name)
 
-#define vec_push_back(vec, elem)                                   \
-	{                                                              \
-		(vec)->len++;                                              \
-		if ((vec)->capacity < (vec)->len * sizeof(elem)) {         \
-			(vec)->capacity =                                      \
-				(vec)->len * sizeof(elem) * VECTOR_RESIZE_FACTOR;  \
+#define vec_push_back(vec, elem)                                  \
+	{                                                             \
+		(vec)->len++;                                             \
+		if ((vec)->capacity < (vec)->len * sizeof(elem)) {        \
+			(vec)->capacity =                                     \
+				(vec)->len * sizeof(elem) * VECTOR_RESIZE_FACTOR; \
 			(vec)->data = krealloc((vec)->data, (vec)->capacity); \
-		}                                                          \
-		(vec)->data[(vec)->len - 1] = elem;                        \
+		}                                                         \
+		(vec)->data[(vec)->len - 1] = elem;                       \
 	}
 
 #define vec_length(vec) (vec)->len
