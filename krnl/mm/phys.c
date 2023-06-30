@@ -31,7 +31,7 @@ mem_info_t mem_info = { 0 };
 void phys_free(uint64_t addr, uint64_t numpages)
 {
 	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
-		if (!bitmap_get(i, 1))
+		if (!bitmap_get_page(i, 1))
 			mem_info.free_mem += PAGE_SIZE;
 
 		mem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] |=
@@ -41,10 +41,10 @@ void phys_free(uint64_t addr, uint64_t numpages)
 
 bool phys_alloc(uint64_t addr, uint64_t numpages)
 {
-	if (!bitmap_get(addr, numpages))
+	if (!bitmap_get_page(addr, numpages))
 		return false;
 
-	bitmap_set(addr, numpages);
+	bitmap_set_page(addr, numpages);
 	mem_info.free_mem -= numpages * PAGE_SIZE;
 	return true;
 }

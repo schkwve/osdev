@@ -25,7 +25,17 @@
 
 extern mem_info_t mem_info;
 
-void bitmap_set(uint64_t addr, uint64_t numpages)
+void bitmap_set(uint64_t *addr, int bit)
+{
+	addr[bit/8] |= (1 << (bit % 8));
+}
+
+bool bitmap_get(uint64_t *addr, int bit)
+{
+	return addr[bit/8] & (1 << (bit % 8));
+}
+
+void bitmap_set_page(uint64_t addr, uint64_t numpages)
 {
 	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {
 		mem_info.bitmap[i / (PAGE_SIZE * BMP_PAGES_PER_BYTE)] &=
@@ -33,7 +43,7 @@ void bitmap_set(uint64_t addr, uint64_t numpages)
 	}
 }
 
-bool bitmap_get(uint64_t addr, uint64_t numpages)
+bool bitmap_get_page(uint64_t addr, uint64_t numpages)
 {
 	bool free = true;
 	for (uint64_t i = addr; i < addr + (numpages * PAGE_SIZE); i += PAGE_SIZE) {

@@ -23,7 +23,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-void bitmap_set(uint64_t addr, uint64_t numpages);
-bool bitmap_get(uint64_t addr, uint64_t numpages);
+void bitmap_set(uint64_t *addr, int bit);
+bool bitmap_get(uint64_t *addr, int bit);
+
+void bitmap_set_page(uint64_t addr, uint64_t numpages);
+bool bitmap_get_page(uint64_t addr, uint64_t numpages);
 
 #endif // __BITMAP_H_
