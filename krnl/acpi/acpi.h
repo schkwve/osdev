@@ -22,6 +22,8 @@
 
 #include <stdint.h>
 
+#define MAX_CPU_COUNT 16
+
 void acpi_init();
 
 #endif // __ACPI_H_

@@ -17,34 +17,46 @@
  *
  */
 
+#include <acpi/madt.h>
+
 #include <dd/apic/pic.h>
 #include <dd/apic/lapic.h>
+#include <dd/apic/ioapic.h>
+
+#include <mm/phys.h>
+#include <mm/virt.h>
 
 #include <debug/log.h>
 #include <utils/utils.h>
 
 #include <stdint.h>
+#include <stdbool.h>
 
-void lapic_init(void)
+uint8_t *g_lapic_addr;
+
+void lapic_init()
 {
-	pic_disable();
-	uint32_t lapic_addr = PHYS_TO_VIRT(acpi_madt_get_lapic());
-	lapic_out(LAPIC_SPURIOUS, LAPIC_ENABLE | LAPIC_SPURIOUS_INT);
+	//g_lapic_addr = PHYS_TO_VIRT(g_lapic_addr);
+	//virt_map(NULL, (uint64_t)g_lapic_addr, VIRT_TO_PHYS(g_lapic_addr), 1, VIRT_FLAGS_MMIO, true);
 
+	lapic_out(LAPIC_TPR, 0);
+	lapic_out(LAPIC_DFR, 0xFFFFFFFF);
+	lapic_out(LAPIC_LDR, 0x01000000);
+	lapic_out(LAPIC_SVR, 0x100 | LAPIC_ENABLE);
 	klog("done\n");
 }
 
-void lapic_eoi(void)
+uint32_t lapic_get_id()
 {
-	lapic_out(LAPIC_EOI, 0);
+	lapic_in(LAPIC_ID) >> 24;
+}
+
+uint32_t lapic_in(uint32_t reg)
+{
+	return mmio_inw(g_lapic_addr + reg);
 }
 
 void lapic_out(uint32_t reg, uint32_t data)
 {
-	mmio_outw(acpi_madt_get_lapic() + reg, data);
-}
-
-void lapic_in(uint32_t reg)
-{
-	mmio_inw(acpi_madt_get_lapic() + reg);
+	mmio_outw(g_lapic_addr + reg, data);
 }

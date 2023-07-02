@@ -19,13 +19,14 @@
 
 #include <boot/limine.h>
 #include <acpi/rsdt.h>
+#include <acpi/madt.h>
 
 #include <debug/log.h>
 
 #include <stdint.h>
 #include <string.h>
 
-void *acpi_rsdp_init(struct limine_rsdp_response *response)
+void acpi_rsdp_init(struct limine_rsdp_response *response)
 {
 	uint64_t *rsdp_addr = response->address;
 
@@ -39,16 +40,53 @@ void *acpi_rsdp_init(struct limine_rsdp_response *response)
 	if ((checksum & 0xFF) != 0) {
 		klog("invalid RSDP Checksum!\n");
 		//panic("Invalid RSDP Checksum!\n");
-		return NULL;
+		for (;;) {
+			__asm__ volatile("cli;hlt");
+		}
 	}
 
 	rsdp_t *rsdp = (rsdp_t *)rsdp_addr;
+	klog("OEM: %s\n", rsdp->oem_id);
 	if (rsdp->rev >= 2) {
-		// Not tested, but should work
 		klog("ACPI v2.0 or above\n");
-		return rsdp->xsdt_addr;
+
+		if (rsdp->xsdt_addr) {
+			acpi_xsdt_parse((xsdt_t *)rsdp->xsdt_addr);
+		} else {
+			acpi_rsdt_parse((rsdt_t *)rsdp->rsdt_addr);
+		}
 	} else {
 		klog("ACPI v1.0\n");
-		return rsdp->rsdt_addr;
+		acpi_rsdt_parse((rsdt_t *)rsdp->rsdt_addr);
+	}
+}
+
+void acpi_rsdt_parse(rsdt_t *rsdt)
+{
+	int entries = (rsdt->header.len - sizeof(rsdt->header)) / 4;
+
+	for (int i = 0; i < entries; i++) {
+		sdt_t *header = (sdt_t *)rsdt->ptr[i];
+
+		// TODO: Add some other tables in the future
+		// But MADT (sig: APIC) is enough for now
+		if (strncmp(header->sig, "APIC", 4) == 0) {
+			acpi_madt_init((madt_t *)rsdt->ptr[i]);
+		}
+	}
+}
+
+void acpi_xsdt_parse(xsdt_t *xsdt)
+{
+	int entries = (xsdt->header.len - sizeof(xsdt->header)) / 4;
+
+	for (int i = 0; i < entries; i++) {
+		sdt_t *header = (sdt_t *)xsdt->ptr[i];
+
+		// TODO: Add some other tables in the future
+		// But MADT (sig: APIC) is enough for now
+		if (strncmp(header->sig, "APIC", 4) == 0) {
+			acpi_madt_init((madt_t *)xsdt->ptr[i]);
+		}
 	}
 }

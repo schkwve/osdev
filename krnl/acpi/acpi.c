@@ -21,13 +21,24 @@
 #include <acpi/rsdt.h>
 #include <acpi/madt.h>
 
-#include <debug/log.h>
+#include <dd/apic/apic.h>
 
-extern madt_t *madt;
+#include <debug/log.h>
 
 void acpi_init()
 {
-	void *rsdp = acpi_rsdp_init();
-	acpi_madt_init(rsdp);
+	acpi_rsdp_init();
+
 	klog("done\n");
+}
+
+uint32_t acpi_remap_irq(uint32_t irq)
+{
+	for (int i = 0; i < g_apic_isos; i++) {
+		if (g_apic_iso[i]->irq_src == irq) {
+			return g_apic_iso[i]->gsi;
+		}
+	}
+
+	return irq;
 }

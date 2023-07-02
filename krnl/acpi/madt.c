@@ -17,69 +17,65 @@
  *
  */
 
+#include <acpi/acpi.h>
 #include <acpi/madt.h>
 #include <acpi/rsdt.h>
 #include <acpi/sdt.h>
+
+#include <dd/apic/apic.h>
+#include <dd/apic/lapic.h>
 
 #include <debug/log.h>
 
 #include <stdint.h>
 #include <string.h>
 
-uint8_t lapic_ids[256] = { 0 };
-uint8_t ncores = 0;
-uint64_t lapic_ptr = 0;
-uint64_t ioapic_ptr = 0;
+uint32_t g_cpu_cnt;
+uint8_t g_cpu_ids[MAX_CPU_COUNT];
 
-madt_t *madt;
+apic_iso_t *g_apic_iso[16];
+uint8_t g_apic_isos = 0;
 
-void acpi_madt_init(void *rsdt_addr)
+madt_t *g_madt;
+
+void acpi_madt_init(madt_t *_madt)
 {
-	rsdt_t *rsdt = (rsdt_t *)rsdt_addr;
-	int entries = (rsdt->header.len - sizeof(rsdt->header)) / 4;
+	g_madt = _madt;
 
-	for (int i = 0; i < entries; i++) {
-		sdt_t *header = (sdt_t *)rsdt->ptr[i];
-		if (strncmp(header->sig, "APIC", 4) == 0) {
-			klog("found APIC signature\n");
-			madt = (madt_t *)rsdt->ptr[i];
-			uint8_t *madt_hdr = (uint8_t *)header;
-			lapic_ptr = (uint64_t)((madt_hdr + 0x24));
+	g_lapic_addr = (uint8_t *)(uintptr_t)g_madt->lapic_addr;
+	klog("found LAPIC @ 0x%08x\n", g_madt->lapic_addr);
 
-			uint8_t *madt_len = madt_hdr + *((uint32_t *)(madt_hdr + 0x04));
-			for (madt_hdr += 44; madt_hdr < madt_len; madt_hdr += madt_hdr[1]) {
-				switch (madt_hdr[0]) {
-				case 0: // LAPIC
-					if (madt_hdr[4] & 1) {
-						lapic_ids[ncores++] = madt_hdr[3];
-					}
-					break;
-				case 1: // IOAPIC
-					ioapic_ptr = (uint64_t) * ((uint32_t *)(madt_hdr + 0x04));
-					break;
-				case 5: // 64-bit LAPIC
-					lapic_ptr = *((uint64_t *)(madt_hdr + 0x04));
+	uint8_t *ptr = (uint8_t *)(g_madt+1);
+	uint8_t *end = (uint8_t *)(g_madt) + g_madt->hdr.len;
+
+
+	while (ptr < end) {
+		apic_hdr_t *hdr = (apic_hdr_t *)ptr;
+		
+		switch (hdr->type) {
+			case ACPI_MADT_LAPIC:
+				apic_lapic_t *lapic = (apic_lapic_t *)ptr;
+				if (g_cpu_cnt < MAX_CPU_COUNT) {
+					g_cpu_ids[g_cpu_cnt] = lapic->lapic_id;
+					++g_cpu_cnt;
 				}
-			}
-
-			klog(
-				"found %d cores, IOAPIC @ 0x%lx, LAPIC @ 0x%lx, Processor IDs:",
-				ncores, ioapic_ptr, lapic_ptr);
-			for (int i = 0; i < ncores; i++) {
-				_klog(" %d", lapic_ids[i]);
-			}
-			_klog("\n");
-			return;
+				klog("found CPU id = %d %d %x\n", lapic->proc_id, lapic->lapic_id, lapic->flags);
+				break;
+			case ACPI_MADT_IOAPIC:
+				apic_ioapic_t *ioapic = (apic_ioapic_t *)ptr;
+				g_ioapic_addr = (uint8_t *)(uintptr_t)ioapic->ioapic_addr;
+				klog("found IOAPIC id = %d, address = 0x%08x, gsi = %d\n", ioapic->ioapic_id, ioapic->ioapic_addr, ioapic->gsi_base);
+				break;
+			case ACPI_MADT_ISO:
+				apic_iso_t *iso = (apic_iso_t *)ptr;
+				g_apic_iso[g_apic_isos++] = (apic_iso_t *)ptr;
+				klog("found interrupt override bus_src = %d, gsi = %d, interrupt = %d, flags = 0x%04x\n", g_apic_iso[g_apic_isos-1]->bus_src, g_apic_iso[g_apic_isos-1]->gsi, g_apic_iso[g_apic_isos-1]->irq_src, g_apic_iso[g_apic_isos-1]->flags);
+				break;
+			default:
+				klog("unknown APIC structure type = %d\n", hdr->type);
+				break;
 		}
+
+		ptr += hdr->len;
 	}
-}
-
-uint8_t *acpi_madt_get_lapic()
-{
-	return (uint8_t *)(uintptr_t)lapic_ptr;
-}
-
-uint8_t *acpi_madt_get_ioapic()
-{
-	return (uint8_t *)(uintptr_t)ioapic_ptr;
 }

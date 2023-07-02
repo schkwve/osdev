@@ -22,15 +22,24 @@
 
 #include <stdint.h>
 
+#define LAPIC_ENABLE (1 << 8)
+
 #define LAPIC_SPURIOUS 0x0F0
 #define LAPIC_SPURIOUS_INT 255
-#define LAPIC_ENABLE (1 << 8)
+
+#define LAPIC_ID 0x20
+#define LAPIC_TPR 0x80
+#define LAPIC_LDR 0xD0
+#define LAPIC_DFR 0xE0
+#define LAPIC_SVR 0xF0
 #define LAPIC_EOI 0xB0
 
-void lapic_init(void);
+extern uint8_t *g_lapic_addr;
 
-void lapic_eoi(void);
+void lapic_init();
+uint32_t lapic_get_id();
+
+uint32_t lapic_in(uint32_t reg);
 void lapic_out(uint32_t reg, uint32_t data);
-void lapic_in(uint32_t reg);
 
 #endif // __LAPIC_H_

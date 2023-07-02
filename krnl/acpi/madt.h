@@ -22,7 +22,14 @@
 
 #include <acpi/sdt.h>
 
+#include <dd/apic/apic.h>
+#include <dd/apic/lapic.h>
+
 #include <stdint.h>
+
+#define ACPI_MADT_LAPIC 0
+#define ACPI_MADT_IOAPIC 1
+#define ACPI_MADT_ISO 2
 
 typedef struct {
 	sdt_t hdr;
@@ -30,9 +37,11 @@ typedef struct {
 	uint32_t flags;
 } madt_t;
 
-void acpi_madt_init(void *rsdt_addr);
+void acpi_madt_init(madt_t *_madt);
 
-uint8_t *acpi_madt_get_lapic();
-uint8_t *acpi_madt_get_ioapic();
+extern apic_iso_t *g_apic_iso[16];
+extern uint8_t g_apic_isos;
+
+extern madt_t *g_madt;
 
 #endif // __MADT_H_

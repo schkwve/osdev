@@ -17,22 +17,25 @@
  *
  */
 
-#include <acpi/acpi.h>
+#ifndef __IOAPIC_H_
+#define __IOAPIC_H_
 
-#include <dd/apic/apic.h>
-#include <dd/apic/lapic.h>
-#include <dd/apic/ioapic.h>
+#include <stdint.h>
 
-#include <int/irq.h>
-#include <debug/log.h>
+#define IOREGSEL 0x00
+#define IOWIN 0x10
 
-void apic_init(void)
-{
-	pic_disable();
-	lapic_init();
-	ioapic_init();
+#define IOAPIC_ID 0x00
+#define IOAPIC_VER 0x01
+#define IOAPIC_ARB 0x02
+#define IOREDTBL 0x10
 
-	acpi_remap_irq(IRQ_TIMER);
+extern uint8_t *g_ioapic_addr;
 
-	ioapic_set_entry(g_ioapic_addr, acpi_remap_irq(IRQ_TIMER), INT_TIMER);
-}
+void ioapic_init();
+void ioapic_set_entry(uint8_t *base, uint8_t index, uint64_t data);
+
+uint32_t ioapic_in(uint8_t *base, uint8_t reg);
+void ioapic_out(uint8_t *base, uint8_t reg, uint64_t data);
+
+#endif // __IOAPIC_H_

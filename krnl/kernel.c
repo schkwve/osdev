@@ -62,12 +62,13 @@ void _start(void)
 	idt_init();
 
 	acpi_init(rsdp_request.response);
-	apic_init();
 
+	apic_init();
+	sti();
 	phys_init(memmap_request.response);
 	virt_init(memmap_request.response, kernel_addr_request.response);
-
 	cpu_check();
+
 
 	pit_init();
 
