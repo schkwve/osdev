@@ -75,7 +75,7 @@ kernel: $(KERNEL)
 
 .PHONY: run
 run: $(ISO) # Run OSDev
-	@qemu-system-x86_64 -serial stdio -smp 4 -no-reboot -M smm=off -m 2G -M q35 -cdrom $(ISO) -display none
+	@qemu-system-x86_64 -serial stdio -smp 4 -no-reboot -M smm=off -m 2G -M q35 -cdrom $(ISO)
 
 .PHONY: format
 format: # Format the code as described in .clang-format

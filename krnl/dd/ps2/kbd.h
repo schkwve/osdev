@@ -30,6 +30,7 @@
 void ps2_kbd_init(void);
 void ps2_kbd_send_cmd(uint8_t cmd);
 
+uint8_t ps2_kbd_to_ascii(uint8_t key);
 void ps2_kbd_handler(cpu_regs_t *regs);
 
 #endif // __PS2_KBD_H_

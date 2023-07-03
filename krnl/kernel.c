@@ -63,18 +63,18 @@ void _start(void)
 
 	acpi_init(rsdp_request.response);
 
-	apic_init();
-	sti();
+	//apic_init();
 	phys_init(memmap_request.response);
 	virt_init(memmap_request.response, kernel_addr_request.response);
 	cpu_check();
-
 
 	pit_init();
 
 	ps2_kbd_init();
 
 	klog("Init done\n");
+
+	klog("\nGoodbye, friend.\n");
 
 	for (;;) {
 	}

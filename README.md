@@ -1,6 +1,10 @@
 # OSDev
 
-A project without name... (yet!)
+A project without name...
+
+## Goodbye, friend.
+
+I am forever abandoning this nameless project in favor of [Hedgehog](https://github.com/schkwve/hedgehog).
 
 ## Building & Running
 
