@@ -4,7 +4,7 @@ A project without name...
 
 ## Goodbye, friend.
 
-I am forever abandoning this nameless project in favor of [Hedgehog](https://github.com/schkwve/hedgehog).
+I am forever abandoning this nameless project.
 
 ## Building & Running
 
